@@ -4,6 +4,7 @@ import matter from 'gray-matter'
 import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import remarkHtml from 'remark-html'
+import sanitizeHtml from 'sanitize-html'
 
 const articlesDirectory = path.join(process.cwd(), 'content/articles')
 
@@ -39,7 +40,20 @@ async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkGfm)
     .use(remarkHtml, { sanitize: false })
     .process(markdown)
-  return result.toString()
+
+  return sanitizeHtml(result.toString(), {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      'img', 'details', 'summary', 'del', 'ins', 'sup', 'sub',
+    ]),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
+      a: ['href', 'title', 'target', 'rel'],
+      th: ['align'],
+      td: ['align'],
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+  })
 }
 
 export async function getAllArticles(): Promise<Article[]> {

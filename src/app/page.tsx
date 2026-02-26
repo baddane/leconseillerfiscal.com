@@ -1,10 +1,8 @@
-'use client'
-
 import Link from 'next/link'
-import { motion } from 'motion/react'
 import { Globe, ShieldCheck, TrendingUp, BookOpen, ArrowRight } from 'lucide-react'
 import Hero from '@/components/Hero'
 import NewsletterForm from '@/components/NewsletterForm'
+import { FadeInCard, HoverScaleCard, FadeIn } from '@/components/AnimatedCard'
 
 const destinations = [
   { name: 'Portugal', flag: '🇵🇹', tag: 'NHR · Retraite', slug: 'portugal' },
@@ -19,12 +17,16 @@ const destinations = [
   { name: 'Île Maurice', flag: '🇲🇺', tag: 'Flat Tax 15%', slug: 'ile-maurice' },
 ]
 
-const pillars = [
-  { icon: Globe, title: 'Vision Globale', desc: '20 destinations couvertes exhaustivement pour les expatriés français, des guides pays aux cas concrets.' },
-  { icon: ShieldCheck, title: 'Sécurité Juridique', desc: 'Informations vérifiées régulièrement, basées sur les conventions fiscales officielles et la réglementation en vigueur.' },
-  { icon: TrendingUp, title: 'Optimisation', desc: 'Outils comparatifs et guides pratiques pour maximiser vos revenus et minimiser votre pression fiscale légalement.' },
-  { icon: BookOpen, title: 'Pédagogie', desc: 'Des guides clairs et accessibles, du guide pays complet aux cas concrets ultra-spécifiques. Gratuit et sans jargon.' },
+const pillarData = [
+  { iconName: 'Globe', title: 'Vision Globale', desc: '20 destinations couvertes exhaustivement pour les expatriés français, des guides pays aux cas concrets.' },
+  { iconName: 'ShieldCheck', title: 'Sécurité Juridique', desc: 'Informations vérifiées régulièrement, basées sur les conventions fiscales officielles et la réglementation en vigueur.' },
+  { iconName: 'TrendingUp', title: 'Optimisation', desc: 'Outils comparatifs et guides pratiques pour maximiser vos revenus et minimiser votre pression fiscale légalement.' },
+  { iconName: 'BookOpen', title: 'Pédagogie', desc: 'Des guides clairs et accessibles, du guide pays complet aux cas concrets ultra-spécifiques. Gratuit et sans jargon.' },
 ]
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Globe, ShieldCheck, TrendingUp, BookOpen,
+}
 
 const stats = [
   { label: 'Destinations couvertes', value: '20+' },
@@ -38,7 +40,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       <Hero />
 
-      {/* Stats */}
+      {/* Stats — pure server HTML */}
       <section className="py-12 border-y border-ink/5 bg-white/30">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, i) => (
@@ -50,7 +52,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pillars */}
+      {/* Pillars — thin client wrappers for animation only */}
       <section className="py-24 px-6 bg-paper">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
@@ -58,31 +60,31 @@ export default function HomePage() {
               <span className="text-gold font-mono font-bold tracking-widest uppercase text-xs mb-4 block">
                 Nos fondations
               </span>
-              <h2 className="text-4xl md:text-6xl font-black leading-tight">
+              <h2 className="text-4xl md:text-6xl font-black leading-tight font-serif">
                 Une approche rigoureuse pour des résultats concrets.
               </h2>
             </div>
-            <p className="text-ink/60 max-w-sm text-sm leading-relaxed">
+            <p className="text-ink/60 max-w-sm text-sm leading-relaxed font-sans">
               Expertise fondateur expatrié, exhaustivité par pays, affiliation intégrée et production LLM maîtrisée.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pillars.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-8 bg-white border border-ink/5 hover:border-gold/30 transition-all group"
-              >
-                <div className="w-14 h-14 bg-paper flex items-center justify-center mb-6 group-hover:bg-gold/10 transition-colors">
-                  <p.icon className="w-7 h-7 text-gold" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">{p.title}</h3>
-                <p className="text-ink/60 leading-relaxed text-sm font-sans">{p.desc}</p>
-              </motion.div>
-            ))}
+            {pillarData.map((p, i) => {
+              const Icon = iconMap[p.iconName]
+              return (
+                <FadeInCard
+                  key={i}
+                  delay={i * 0.1}
+                  className="p-8 bg-white border border-ink/5 hover:border-gold/30 transition-all group"
+                >
+                  <div className="w-14 h-14 bg-paper flex items-center justify-center mb-6 group-hover:bg-gold/10 transition-colors">
+                    {Icon && <Icon className="w-7 h-7 text-gold" />}
+                  </div>
+                  <h3 className="text-xl font-bold mb-4 font-serif">{p.title}</h3>
+                  <p className="text-ink/60 leading-relaxed text-sm font-sans">{p.desc}</p>
+                </FadeInCard>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -91,7 +93,7 @@ export default function HomePage() {
       <section className="py-24 px-6 bg-ink text-paper relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-black mb-6">
+            <h2 className="text-4xl md:text-6xl font-black mb-6 font-serif">
               Destinations <span className="text-gold italic">Cibles</span>
             </h2>
             <p className="text-paper/60 max-w-xl mx-auto font-sans">
@@ -100,16 +102,16 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
             {destinations.map((c, i) => (
-              <motion.div key={i} whileHover={{ scale: 1.02 }}>
+              <HoverScaleCard key={i}>
                 <Link
                   href={`/expatriation/${c.slug}`}
                   className="block p-6 bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
                 >
                   <span className="text-3xl mb-4 block">{c.flag}</span>
-                  <h4 className="text-lg font-bold mb-1">{c.name}</h4>
+                  <h4 className="text-lg font-bold mb-1 font-serif">{c.name}</h4>
                   <span className="font-mono text-xs text-gold font-bold tracking-widest uppercase">{c.tag}</span>
                 </Link>
-              </motion.div>
+              </HoverScaleCard>
             ))}
           </div>
           <div className="text-center">
@@ -130,11 +132,7 @@ export default function HomePage() {
       {/* Quote */}
       <section className="py-32 px-6 bg-white">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
+          <FadeIn>
             <span className="text-gold text-5xl font-serif mb-8 block">&ldquo;</span>
             <blockquote className="text-3xl md:text-4xl font-serif italic leading-tight mb-12 text-ink">
               Devenir la référence francophone de la fiscalité des expatriés — le seul site qui répond précisément à chaque question d&apos;un Français qui part, vit, ou rentre de l&apos;étranger.
@@ -142,7 +140,7 @@ export default function HomePage() {
             <cite className="not-italic font-mono text-xs uppercase tracking-widest text-ink/40">
               — Positionnement stratégique · leconseillerfiscal.com/expatriation/
             </cite>
-          </motion.div>
+          </FadeIn>
         </div>
       </section>
 
