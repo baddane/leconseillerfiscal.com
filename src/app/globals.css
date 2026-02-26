@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+
+  ::selection {
+    @apply bg-gold text-ink;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+
+  /* MDX article content styles */
+  .article-content {
+    @apply prose prose-lg max-w-none;
+    @apply prose-headings:font-serif prose-headings:text-ink;
+    @apply prose-p:text-ink/80 prose-p:leading-relaxed;
+    @apply prose-a:text-gold prose-a:no-underline hover:prose-a:underline;
+    @apply prose-strong:text-ink prose-strong:font-bold;
+    @apply prose-table:text-sm;
+    @apply prose-th:bg-ink prose-th:text-paper prose-th:font-mono prose-th:tracking-wider prose-th:text-xs;
+    @apply prose-td:border-border;
+    @apply prose-code:font-mono prose-code:text-sm prose-code:text-ink prose-code:bg-paper/80;
+    @apply prose-blockquote:border-gold prose-blockquote:font-serif prose-blockquote:italic;
+    @apply prose-hr:border-border;
+  }
+}
