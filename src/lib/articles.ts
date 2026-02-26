@@ -1,6 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { remark } from 'remark'
+import remarkGfm from 'remark-gfm'
+import remarkHtml from 'remark-html'
 
 const articlesDirectory = path.join(process.cwd(), 'content/articles')
 
@@ -22,6 +25,7 @@ export interface ArticleFrontmatter {
 
 export interface Article extends ArticleFrontmatter {
   content: string
+  contentHtml: string
   readTime: number
 }
 
@@ -30,31 +34,40 @@ function computeReadTime(content: string): number {
   return Math.max(1, Math.ceil(wordCount / 200))
 }
 
-export function getAllArticles(): Article[] {
+async function markdownToHtml(markdown: string): Promise<string> {
+  const result = await remark()
+    .use(remarkGfm)
+    .use(remarkHtml, { sanitize: false })
+    .process(markdown)
+  return result.toString()
+}
+
+export async function getAllArticles(): Promise<Article[]> {
   try {
     const fileNames = fs.readdirSync(articlesDirectory)
-    return fileNames
-      .filter((name) => name.endsWith('.mdx'))
-      .map((name) => {
-        const slug = name.replace(/\.mdx$/, '')
-        return getArticleBySlug(slug)
-      })
-      .filter((a): a is Article => a !== null)
+    const articles = await Promise.all(
+      fileNames
+        .filter((name) => name.endsWith('.mdx'))
+        .map((name) => getArticleBySlug(name.replace(/\.mdx$/, '')))
+    )
+    return articles.filter((a): a is Article => a !== null)
   } catch {
     return []
   }
 }
 
-export function getArticleBySlug(slug: string): Article | null {
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
     const fullPath = path.join(articlesDirectory, `${slug}.mdx`)
     const fileContents = fs.readFileSync(fullPath, 'utf8')
     const { data, content } = matter(fileContents)
+    const contentHtml = await markdownToHtml(content)
 
     return {
       ...(data as ArticleFrontmatter),
       slug,
       content,
+      contentHtml,
       readTime: computeReadTime(content),
     }
   } catch {
@@ -62,15 +75,29 @@ export function getArticleBySlug(slug: string): Article | null {
   }
 }
 
-export function getArticlesByPays(pays: string): Article[] {
-  return getAllArticles().filter((a) => a.pays === pays)
+export async function getArticlesByPays(pays: string): Promise<Article[]> {
+  const all = await getAllArticles()
+  return all.filter((a) => a.pays === pays)
 }
 
-export function getAllSlugs(): { pays: string; slug: string }[] {
-  return getAllArticles().map((a) => ({ pays: a.pays, slug: a.slug }))
+// Sync versions for generateStaticParams (no async allowed there in Next.js build)
+export function getAllSlugsSynced(): { pays: string; slug: string }[] {
+  try {
+    const fileNames = fs.readdirSync(articlesDirectory)
+    return fileNames
+      .filter((name) => name.endsWith('.mdx'))
+      .map((name) => {
+        const slug = name.replace(/\.mdx$/, '')
+        const fullPath = path.join(articlesDirectory, `${slug}.mdx`)
+        const fileContents = fs.readFileSync(fullPath, 'utf8')
+        const { data } = matter(fileContents)
+        return { pays: (data as ArticleFrontmatter).pays, slug }
+      })
+  } catch {
+    return []
+  }
 }
 
-export function getAllPaysList(): string[] {
-  const all = getAllArticles().map((a) => a.pays)
-  return [...new Set(all)]
+export function getAllPaysListSynced(): string[] {
+  return [...new Set(getAllSlugsSynced().map((s) => s.pays))]
 }

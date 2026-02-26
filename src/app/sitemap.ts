@@ -1,12 +1,12 @@
 import { MetadataRoute } from 'next'
-import { getAllArticles, getAllPaysList } from '@/lib/articles'
+import { getAllSlugsSynced, getAllPaysListSynced } from '@/lib/articles'
 import { countries } from '@/data/countries'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const articles = getAllArticles()
-  const paysList = getAllPaysList()
+  const slugs = getAllSlugsSynced()
+  const paysList = getAllPaysListSynced()
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: siteUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
@@ -31,8 +31,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     }))
 
-  const articlePages: MetadataRoute.Sitemap = articles.map((a) => ({
-    url: `${siteUrl}/expatriation/${a.pays}/${a.slug}`,
+  const articlePages: MetadataRoute.Sitemap = slugs.map((s) => ({
+    url: `${siteUrl}/expatriation/${s.pays}/${s.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.7,

@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
   },

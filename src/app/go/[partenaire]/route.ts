@@ -3,9 +3,9 @@ import { getAffiliateUrl } from '@/lib/affiliates'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { partenaire: string } }
+  { params }: { params: Promise<{ partenaire: string }> }
 ) {
-  const { partenaire } = params
+  const { partenaire } = await params
   const destination = getAffiliateUrl(partenaire)
 
   // Log le clic (visible dans les logs Vercel)
