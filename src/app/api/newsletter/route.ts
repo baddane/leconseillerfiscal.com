@@ -29,27 +29,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
     }
 
-    const apiKey = process.env.RESEND_API_KEY
-    if (!apiKey) {
-      console.log(`[newsletter] New subscriber: ${email}`)
+    const brevoKey = process.env.BREVO_API_KEY
+    if (!brevoKey) {
+      console.log(`[newsletter] New subscriber (dev): ${email}`)
       return NextResponse.json({ ok: true })
     }
 
-    const res = await fetch('https://api.resend.com/contacts', {
+    // Brevo — ajouter le contact à la liste newsletter
+    const listId = process.env.BREVO_NEWSLETTER_LIST_ID
+      ? parseInt(process.env.BREVO_NEWSLETTER_LIST_ID)
+      : null
+
+    const payload: Record<string, unknown> = {
+      email,
+      updateEnabled: true, // met à jour si le contact existe déjà
+    }
+    if (listId) payload.listIds = [listId]
+
+    const res = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        'api-key': brevoKey,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        email,
-        unsubscribed: false,
-      }),
+      body: JSON.stringify(payload),
     })
 
-    if (!res.ok) {
+    if (!res.ok && res.status !== 204) {
       const err = await res.text()
-      console.error('[newsletter] Resend error:', err)
+      console.error('[newsletter] Brevo error:', err)
       return NextResponse.json({ error: 'Erreur inscription' }, { status: 500 })
     }
 

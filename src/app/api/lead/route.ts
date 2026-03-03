@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nom requis' }, { status: 400 })
     }
 
-    const apiKey = process.env.RESEND_API_KEY
+    const resendKey = process.env.RESEND_API_KEY
+    const brevoKey = process.env.BREVO_API_KEY
     const contactEmail = process.env.CONTACT_EMAIL ?? 'contact@leconseillerfiscal.com'
 
     const emailText = [
@@ -51,41 +52,70 @@ export async function POST(request: NextRequest) {
       message || '(aucun message)',
     ].join('\n')
 
-    if (!apiKey) {
+    if (!resendKey && !brevoKey) {
       console.log(`[lead] ${emailText}`)
       return NextResponse.json({ ok: true })
     }
 
-    // Send notification email
-    const notifRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
-        to: contactEmail,
-        reply_to: email,
-        subject: `[Lead] Bilan Fiscal — ${nom} · ${pays || 'pays NC'}`,
-        text: emailText,
-      }),
-    })
+    // ── 1. Resend — notification email transactionnel ──────────────────────
+    if (resendKey) {
+      const notifRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
+          to: contactEmail,
+          reply_to: email,
+          subject: `[Lead] Bilan Fiscal — ${nom} · ${pays || 'pays NC'}`,
+          text: emailText,
+        }),
+      })
 
-    if (!notifRes.ok) {
-      const err = await notifRes.text()
-      console.error('[lead] Resend notification error:', err)
+      if (!notifRes.ok) {
+        const err = await notifRes.text()
+        console.error('[lead] Resend error:', err)
+      }
     }
 
-    // Add to newsletter contacts
-    await fetch('https://api.resend.com/contacts', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, first_name: nom.split(' ')[0], unsubscribed: false }),
-    }).catch(() => {}) // Non-blocking
+    // ── 2. Brevo — contact enrichi pour séquences de nurturing ────────────
+    if (brevoKey) {
+      const [prenom, ...rest] = nom.trim().split(' ')
+      const nomFamille = rest.join(' ')
+
+      const listId = process.env.BREVO_LEADS_LIST_ID
+        ? parseInt(process.env.BREVO_LEADS_LIST_ID)
+        : null
+
+      // Attributs personnalisés — à créer dans Brevo : Contacts → Paramètres → Attributs
+      const attributes: Record<string, string> = {
+        PRENOM: prenom ?? nom,
+        ...(nomFamille && { NOM: nomFamille }),
+        ...(telephone && { TELEPHONE: telephone }),
+        ...(pays && { PAYS_CIBLE: pays }),
+        ...(situation && { SITUATION: situation }),
+        ...(revenus && { REVENUS: revenus }),
+        SOURCE: source ?? 'bilan-fiscal',
+      }
+
+      const payload: Record<string, unknown> = {
+        email,
+        attributes,
+        updateEnabled: true,
+      }
+      if (listId) payload.listIds = [listId]
+
+      await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: {
+          'api-key': brevoKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }).catch((err) => console.error('[lead] Brevo error:', err))
+    }
 
     return NextResponse.json({ ok: true })
   } catch (err) {
