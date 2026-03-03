@@ -25,17 +25,17 @@ export default function Hero() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/expatriation"
-              className="w-full sm:w-auto bg-ink text-paper px-10 py-4 font-mono font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gold hover:text-ink transition-all group"
+              href="/bilan-fiscal"
+              className="w-full sm:w-auto bg-gold text-ink px-10 py-4 font-mono font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gold/80 transition-all group"
             >
-              Découvrir les guides
+              Bilan Fiscal Gratuit
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/expatriation/outils/comparatif-assurance-sante-expatrie"
+              href="/expatriation"
               className="w-full sm:w-auto border border-ink/20 px-10 py-4 font-mono font-bold text-sm tracking-widest uppercase hover:bg-ink/5 transition-all"
             >
-              Comparer les assurances
+              Découvrir les guides
             </Link>
           </div>
         </motion.div>

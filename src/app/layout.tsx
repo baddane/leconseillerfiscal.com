@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import ExitIntentModal from '@/components/ExitIntentModal'
+import StickyLeadBar from '@/components/StickyLeadBar'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
@@ -48,6 +50,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main>{children}</main>
         <Footer />
+        <ExitIntentModal />
+        <StickyLeadBar />
       </body>
     </html>
   )
