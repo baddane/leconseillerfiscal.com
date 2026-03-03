@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { X, ArrowRight } from 'lucide-react'
+import { getConsent } from './CookieBanner'
 
 export default function StickyLeadBar() {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [consentGiven, setConsentGiven] = useState(false)
 
   useEffect(() => {
     try {
@@ -16,13 +18,26 @@ export default function StickyLeadBar() {
       }
     } catch {}
 
+    // Only show after cookie consent is settled
+    const checkConsent = () => {
+      if (getConsent() !== null) setConsentGiven(true)
+    }
+    checkConsent()
+
+    // Poll briefly in case user just answered the banner
+    const interval = setInterval(checkConsent, 500)
+    setTimeout(() => clearInterval(interval), 30000)
+
     function onScroll() {
       const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight)
       if (scrolled > 0.3) setVisible(true)
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      clearInterval(interval)
+    }
   }, [])
 
   function dismiss() {
@@ -30,7 +45,7 @@ export default function StickyLeadBar() {
     try { localStorage.setItem('lcf_bar_dismissed', '1') } catch {}
   }
 
-  if (dismissed || !visible) return null
+  if (dismissed || !visible || !consentGiven) return null
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] bg-ink text-paper border-t border-gold/20 shadow-2xl">
