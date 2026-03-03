@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { X, FileText, Mail } from 'lucide-react'
+import { X, Mail, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 export default function ExitIntentModal() {
   const [visible, setVisible] = useState(false)
@@ -69,7 +70,6 @@ export default function ExitIntentModal() {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-ink/60 backdrop-blur-sm">
       <div className="relative max-w-lg w-full bg-paper border border-ink/10 shadow-2xl overflow-hidden">
-        {/* Top gold bar */}
         <div className="h-1 bg-gold w-full" />
 
         <button
@@ -81,62 +81,63 @@ export default function ExitIntentModal() {
         </button>
 
         <div className="p-8 md:p-10">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gold/10 flex items-center justify-center flex-shrink-0">
-              <FileText className="w-6 h-6 text-gold" />
-            </div>
-            <div>
-              <div className="font-mono text-xs uppercase tracking-widest text-gold mb-1">
-                Ressource Gratuite
-              </div>
-              <h2 className="font-serif text-xl font-black leading-tight">
-                Checklist : 10 étapes fiscales avant de quitter la France
-              </h2>
-            </div>
+          <div className="font-mono text-xs uppercase tracking-widest text-gold mb-3">
+            Avant de partir
           </div>
-
+          <h2 className="font-serif text-2xl font-black leading-tight mb-4">
+            Votre situation fiscale mérite une analyse sérieuse.
+          </h2>
           <p className="text-ink/60 text-sm leading-relaxed mb-6 font-sans">
-            Évitez les erreurs coûteuses. Notre checklist détaille les démarches fiscales essentielles
-            pour sécuriser votre départ : résidence fiscale, exit tax, conventions, comptes bancaires…
+            Décrivez votre projet en 3 minutes. Nos experts analysent votre profil
+            et vous répondent personnellement sous 48h — gratuitement, sans engagement.
           </p>
 
-          {status === 'success' ? (
-            <div className="bg-gold/10 border border-gold/20 p-6 text-center">
-              <div className="text-2xl mb-2">✓</div>
-              <p className="font-serif font-bold text-ink mb-1">Parfait, c&apos;est parti !</p>
-              <p className="text-sm text-ink/60 font-sans">
-                Vous recevrez la checklist dans votre boîte mail sous peu.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                required
-                className="px-4 py-3 border border-ink/15 bg-white focus:border-gold focus:outline-none font-mono text-sm"
-              />
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="bg-gold text-ink px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold/80 transition-all flex items-center justify-center gap-2 disabled:opacity-60 font-bold"
-              >
-                <Mail className="w-4 h-4" />
-                {status === 'loading' ? 'Envoi...' : 'Recevoir la checklist gratuite'}
-              </button>
-              {status === 'error' && (
-                <p className="text-xs text-red font-mono">Erreur. Réessayez ou écrivez-nous.</p>
-              )}
-            </form>
-          )}
+          <Link
+            href="/bilan-fiscal"
+            onClick={dismiss}
+            className="flex items-center justify-center gap-2 bg-gold text-ink px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold/80 transition-all font-bold mb-6"
+          >
+            Demander mon bilan fiscal gratuit <ArrowRight className="w-4 h-4" />
+          </Link>
+
+          <div className="border-t border-ink/8 pt-5">
+            <p className="text-xs text-ink/40 font-mono mb-3 uppercase tracking-widest">
+              Ou restez simplement informé
+            </p>
+            {status === 'success' ? (
+              <div className="text-sm font-mono text-gold">
+                ✓ Inscription confirmée — bienvenue !
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  required
+                  className="flex-1 px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none font-mono text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="bg-ink text-paper px-4 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-ink/80 transition-all flex items-center gap-1.5 disabled:opacity-60 whitespace-nowrap"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  {status === 'loading' ? '...' : "S'abonner"}
+                </button>
+              </form>
+            )}
+            {status === 'error' && (
+              <p className="mt-2 text-xs text-red font-mono">Erreur. Réessayez.</p>
+            )}
+          </div>
 
           <button
             onClick={dismiss}
-            className="mt-4 text-xs text-ink/30 hover:text-ink/50 transition-colors font-mono underline"
+            className="mt-5 text-xs text-ink/25 hover:text-ink/50 transition-colors font-mono underline"
           >
-            Non merci, je connais déjà mes obligations fiscales
+            Fermer
           </button>
         </div>
       </div>
