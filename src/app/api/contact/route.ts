@@ -32,34 +32,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
     }
 
-    const apiKey = process.env.RESEND_API_KEY
+    const brevoKey = process.env.BREVO_API_KEY
     const contactEmail = process.env.CONTACT_EMAIL ?? 'contact@leconseillerfiscal.com'
 
-    if (!apiKey) {
-      // Dev mode: log to console
+    if (!brevoKey) {
       console.log(`[contact] From: ${nom} <${email}> | Sujet: ${sujet} | Message: ${message.substring(0, 200)}`)
       return NextResponse.json({ ok: true })
     }
 
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        'api-key': brevoKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
-        to: contactEmail,
-        reply_to: email,
+        sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+        to: [{ email: contactEmail }],
+        replyTo: { email, name: nom },
         subject: `[Contact] ${sujet} — ${nom}`,
-        text: `Nom: ${nom}\nEmail: ${email}\nSujet: ${sujet}\n\n${message}`,
+        textContent: `Nom: ${nom}\nEmail: ${email}\nSujet: ${sujet}\n\n${message}`,
       }),
     })
 
     if (!res.ok) {
       const err = await res.text()
-      console.error('[contact] Resend error:', err)
-      return NextResponse.json({ error: 'Erreur d\'envoi' }, { status: 500 })
+      console.error('[contact] Brevo error:', err)
+      return NextResponse.json({ error: "Erreur d'envoi" }, { status: 500 })
     }
 
     return NextResponse.json({ ok: true })
