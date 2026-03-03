@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Globe, ShieldCheck, TrendingUp, BookOpen, ArrowRight } from 'lucide-react'
+import { Globe, ShieldCheck, TrendingUp, BookOpen, ArrowRight, CheckCircle } from 'lucide-react'
 import Hero from '@/components/Hero'
 import NewsletterForm from '@/components/NewsletterForm'
 import { FadeInCard, HoverScaleCard, FadeIn } from '@/components/AnimatedCard'
@@ -127,6 +127,76 @@ export default function HomePage() {
           className="absolute inset-0 opacity-5 pointer-events-none"
           style={{ backgroundImage: 'radial-gradient(#c9a84c 1px, transparent 1px)', backgroundSize: '40px 40px' }}
         />
+      </section>
+
+      {/* Bilan Fiscal CTA */}
+      <section className="py-24 px-6 bg-paper">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-0 border border-ink/10 overflow-hidden">
+            {/* Left — value prop */}
+            <div className="bg-gold p-12 md:p-16">
+              <span className="font-mono text-xs uppercase tracking-widest opacity-60 mb-4 block">
+                Service Gratuit
+              </span>
+              <h2 className="font-serif text-4xl md:text-5xl font-black leading-tight mb-6">
+                Votre Bilan Fiscal<br />
+                <span className="italic">Personnalisé.</span>
+              </h2>
+              <p className="text-ink/70 leading-relaxed mb-8 font-sans">
+                Décrivez votre situation en 3 minutes. Nos experts analysent votre profil
+                et vous envoient des recommandations concrètes, gratuitement.
+              </p>
+              <ul className="flex flex-col gap-3 mb-8">
+                {[
+                  'Analyse personnalisée de votre situation',
+                  'Pays optimal identifié selon vos critères',
+                  'Réponse sous 48h ouvrées',
+                  'Sans engagement, 100% gratuit',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm font-sans">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0 text-ink/60" />
+                    <span className="text-ink/80">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/bilan-fiscal"
+                className="inline-flex items-center gap-2 bg-ink text-paper px-8 py-4 font-mono font-bold text-xs tracking-widest uppercase hover:bg-ink/80 transition-all group"
+              >
+                Demander mon bilan gratuit
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            {/* Right — social proof */}
+            <div className="bg-ink text-paper p-12 md:p-16 flex flex-col justify-between">
+              <div>
+                <span className="font-mono text-xs uppercase tracking-widest text-gold mb-8 block">
+                  Ce que vous recevrez
+                </span>
+                <div className="flex flex-col gap-6">
+                  {[
+                    { step: '01', title: 'Analyse de résidence fiscale', desc: 'Votre domicile fiscal actuel et les risques potentiels.' },
+                    { step: '02', title: 'Comparatif pays ciblés', desc: 'Les 2-3 destinations les plus adaptées à votre profil.' },
+                    { step: '03', title: 'Plan d\'action prioritaire', desc: 'Les étapes concrètes à suivre avant de partir.' },
+                  ].map((item) => (
+                    <div key={item.step} className="flex items-start gap-4">
+                      <span className="font-mono text-gold font-bold text-xs">{item.step}</span>
+                      <div>
+                        <div className="font-serif font-bold text-sm mb-0.5">{item.title}</div>
+                        <div className="text-xs text-paper/50 font-sans">{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-10 pt-8 border-t border-white/10">
+                <p className="text-sm text-paper/40 font-mono italic">
+                  &ldquo;La fiscalité est complexe. Notre rôle est de la rendre accessible.&rdquo;
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Quote */}

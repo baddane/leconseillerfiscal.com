@@ -30,10 +30,10 @@ export default function Navbar() {
             À propos
           </Link>
           <Link
-            href="/contact"
-            className="bg-ink text-paper px-6 py-2.5 hover:bg-gold hover:text-ink transition-all duration-300 text-xs"
+            href="/bilan-fiscal"
+            className="bg-gold text-ink px-6 py-2.5 hover:bg-gold/80 transition-all duration-300 text-xs font-bold"
           >
-            Consulter un Expert
+            Bilan Gratuit
           </Link>
         </div>
 
@@ -54,11 +54,11 @@ export default function Navbar() {
             À propos
           </Link>
           <Link
-            href="/contact"
-            className="bg-ink text-paper py-3 font-mono text-xs tracking-widest uppercase"
+            href="/bilan-fiscal"
+            className="bg-gold text-ink py-3 font-mono text-xs tracking-widest uppercase font-bold"
             onClick={() => setIsOpen(false)}
           >
-            Consulter un Expert
+            Bilan Fiscal Gratuit
           </Link>
         </div>
       )}

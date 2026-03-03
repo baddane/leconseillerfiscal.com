@@ -6,7 +6,8 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup:brevo": "node scripts/setup-brevo.js"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

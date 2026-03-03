@@ -8,6 +8,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import { ArticleJsonLd, FaqJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd'
 import Link from 'next/link'
 import { Clock, ShieldCheck, ChevronDown } from 'lucide-react'
+import LeadCaptureBox from '@/components/LeadCaptureBox'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
@@ -118,6 +119,9 @@ export default async function ArticlePage({
               dangerouslySetInnerHTML={{ __html: article.contentHtml }}
             />
 
+            {/* Lead capture CTA after article */}
+            <LeadCaptureBox pays={countryName} variant="cta" />
+
             {/* Inline affiliate after content */}
             {primaryAffiliate && affiliateDisplay[primaryAffiliate] && (
               <AffiliateBox partnerId={primaryAffiliate} variant="inline" />
@@ -145,6 +149,9 @@ export default async function ArticlePage({
                 </div>
               </section>
             )}
+
+            {/* Newsletter capture before disclaimer */}
+            <LeadCaptureBox pays={countryName} variant="email" />
 
             {/* Disclaimer */}
             <div className="mt-12 bg-cream border border-border p-6 text-xs text-ink/50 font-sans leading-relaxed">
