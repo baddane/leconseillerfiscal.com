@@ -270,6 +270,13 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
              - sci-etranger-francais-non-resident (pays: outils)
              - assurance-vie-luxembourgeoise-vs-francaise (pays: outils)
              - ile-maurice-vs-thailande-retraite-digital-nomad (pays: outils)
+[2026-03-06] Maillage retour vague 5 (commit 2e72859) :
+             - checklist → 3916 + assurance-vie-lux
+             - rompre-residence → impatriation + 3916
+             - retraite-expatriation-quel-pays → retraite-2026 + ile-maurice-vs-thailande
+             - holding-dubai → sci-etranger
+             - fiscalite-ile-maurice-2026 → ile-maurice-vs-thailande + retraite-2026
+             - fiscalite-thailande-2026 → ile-maurice-vs-thailande + retraite-2026
 ```
 
 ---
@@ -296,7 +303,7 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
 ### À faire (idées futures)
 - Monitoring Core Web Vitals (LCP, CLS)
 - Passage à `next/image` si des images sont ajoutées aux articles MDX
-- Maillage retour : ajouter des liens depuis les articles existants vers les 6 nouveaux articles vague 5
+- ✅ DONE Maillage retour vague 5 : 6 articles existants → nouveaux (commit 2e72859)
 - Nouveaux articles (voir section 4 "Prochaines idées")
 
 ---
