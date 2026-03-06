@@ -10,7 +10,8 @@ import Link from 'next/link'
 import { Clock, ShieldCheck, ChevronDown } from 'lucide-react'
 import LeadCaptureBox from '@/components/LeadCaptureBox'
 import RelatedArticles from '@/components/RelatedArticles'
-import TableOfContents, { extractTocItems } from '@/components/TableOfContents'
+import TableOfContents from '@/components/TableOfContents'
+import { extractTocItems } from '@/lib/toc'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
