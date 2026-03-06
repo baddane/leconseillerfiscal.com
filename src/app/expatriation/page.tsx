@@ -4,6 +4,39 @@ import { getAllArticles } from '@/lib/articles'
 import { countries } from '@/data/countries'
 import { ArrowRight } from 'lucide-react'
 
+const faqItems = [
+  {
+    question: 'Comment changer sa résidence fiscale en quittant la France ?',
+    answer:
+      'Pour cesser d\'être résident fiscal français, vous devez quitter effectivement la France et établir votre résidence principale à l\'étranger. Il faut notamment y installer votre foyer (famille), y exercer votre activité principale ou y transférer le centre de vos intérêts économiques. La démarche implique de déposer une déclaration de revenus française pour l\'année de départ (formulaire 2042 + 2042 NR), d\'informer vos banques et caisses de retraite, et le cas échéant de déclarer les plus-values latentes si l\'exit tax s\'applique.',
+  },
+  {
+    question: 'Dois-je continuer à déclarer mes revenus en France si je suis expatrié ?',
+    answer:
+      'Cela dépend de votre situation. Si vous avez des revenus de source française (revenus immobiliers en France, dividendes de sociétés françaises non couverts par une convention, etc.), vous devez déposer une déclaration en tant que non-résident. En revanche, si vous n\'avez plus aucun revenu de source française, vous n\'avez en principe aucune obligation déclarative en France. Vérifiez toujours la convention fiscale entre la France et votre pays de résidence.',
+  },
+  {
+    question: 'Qu\'est-ce que l\'exit tax et qui est concerné ?',
+    answer:
+      'L\'exit tax (article 167 bis CGI) impose les plus-values latentes sur titres lors du transfert de domicile fiscal hors de France. Elle s\'applique si vous avez été résident fiscal français pendant au moins 6 des 10 dernières années et détenez des participations supérieures à 800 000 € ou représentant plus de 50 % d\'une société. Un sursis de paiement automatique est accordé lors d\'un départ dans l\'UE ou l\'EEE, et un dégrèvement est possible après 2 ou 5 ans selon les situations.',
+  },
+  {
+    question: 'Quels sont les pays avec les meilleurs régimes fiscaux pour les expatriés français ?',
+    answer:
+      'Plusieurs destinations offrent des régimes préférentiels reconnus : le Portugal avec l\'IFICI (ex-NHR, taux de 20 % sur 10 ans pour professions qualifiées), Dubaï et les Émirats Arabes Unis (0 % d\'impôt sur le revenu), Malte et Chypre avec leurs programmes pour résidents non domiciliés, la Suisse avec les forfaits fiscaux cantonaux, et l\'Espagne avec la Loi Beckham (24 % fixe pour impatriés). Le choix dépend de votre profil de revenus, de la convention fiscale franco-locale et de vos contraintes personnelles.',
+  },
+  {
+    question: 'Une convention fiscale protège-t-elle totalement de la double imposition ?',
+    answer:
+      'Pas nécessairement. Les conventions définissent quel État a le droit d\'imposer chaque catégorie de revenus, mais certains revenus peuvent rester imposables dans les deux pays avec un mécanisme de crédit d\'impôt pour éviter la double charge. De plus, certaines conventions françaises sont anciennes et comportent des lacunes. La protection est optimale quand la convention prévoit l\'exonération avec progressivité (méthode d\'exemption) plutôt que la méthode du crédit d\'impôt.',
+  },
+  {
+    question: 'Comment fonctionne l\'imposition des revenus immobiliers en France pour un expatrié ?',
+    answer:
+      'Les revenus de biens immobiliers situés en France restent en principe imposables en France, même si vous êtes résident fiscal à l\'étranger. Ils sont soumis à l\'impôt sur le revenu au taux minimum de 20 % (ou taux du barème si plus favorable) ainsi qu\'aux prélèvements sociaux à 17,2 %. Toutefois, si vous résidez dans l\'EEE (UE, Islande, Norvège, Liechtenstein), les prélèvements sociaux peuvent être réduits. La convention fiscale de votre pays de résidence peut prévoir des modalités spécifiques.',
+  },
+]
+
 export const metadata: Metadata = {
   title: 'Expatriation & Fiscalité par Pays — Guides Complets',
   description:
@@ -124,6 +157,30 @@ export default async function ExpatriationPage() {
               </div>
             </>
           )}
+
+          {/* FAQ */}
+          <div className="mt-20">
+            <h2 className="font-serif text-3xl font-bold mb-3">Questions fréquentes sur l&apos;expatriation fiscale</h2>
+            <p className="text-ink/50 font-sans text-sm mb-8">
+              Les réponses aux questions les plus posées par les expatriés français.
+            </p>
+            <div className="space-y-3">
+              {faqItems.map((item, i) => (
+                <details
+                  key={i}
+                  className="group border border-ink/10 bg-white open:border-gold/30"
+                >
+                  <summary className="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer list-none font-serif font-bold text-base leading-snug select-none hover:text-gold transition-colors">
+                    {item.question}
+                    <span className="flex-shrink-0 text-gold font-mono text-lg leading-none group-open:rotate-45 transition-transform">+</span>
+                  </summary>
+                  <div className="px-6 pb-6 pt-1 text-ink/70 font-sans text-sm leading-relaxed border-t border-ink/5">
+                    {item.answer}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </div>
