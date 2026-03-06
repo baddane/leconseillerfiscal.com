@@ -1,6 +1,6 @@
 # CLAUDE INSTRUCTIONS — leconseillerfiscal.com
 # Fichier de référence persistant — à lire EN PREMIER à chaque session
-# Dernière mise à jour : 2026-03-06
+# Dernière mise à jour : 2026-03-06 (vague 4 terminée)
 
 ---
 
@@ -149,13 +149,13 @@ Ces pays ont un guide fiscal mais PAS de guide "ouvrir compte bancaire" :
 
 | Priorité | Article à créer | Pays concerné |
 |----------|----------------|---------------|
-| 🔴 HIGH | ouvrir-compte-bancaire-allemagne.mdx | Allemagne (140k+ Français) |
-| 🔴 HIGH | ouvrir-compte-bancaire-maroc.mdx | Maroc (30k+ Français) |
-| 🟡 MED | ouvrir-compte-bancaire-pays-bas.mdx | Pays-Bas (30% ruling) |
-| 🟡 MED | ouvrir-compte-bancaire-italie.mdx | Italie (flat tax) |
-| 🟡 MED | ouvrir-compte-bancaire-mexique.mdx | Mexique (digital nomads) |
-| 🟢 LOW | ouvrir-compte-bancaire-japon.mdx | Japon (niche) |
-| 🟢 LOW | ouvrir-compte-bancaire-costa-rica.mdx | Costa Rica (retraite) |
+| ✅ DONE | ouvrir-compte-bancaire-allemagne.mdx | Allemagne (140k+ Français) |
+| ✅ DONE | ouvrir-compte-bancaire-maroc.mdx | Maroc (30k+ Français) |
+| ✅ DONE | ouvrir-compte-bancaire-pays-bas.mdx | Pays-Bas (30% ruling) |
+| ✅ DONE | ouvrir-compte-bancaire-italie.mdx | Italie (flat tax) |
+| ✅ DONE | ouvrir-compte-bancaire-mexique.mdx | Mexique (digital nomads) |
+| ✅ DONE | ouvrir-compte-bancaire-japon.mdx | Japon (niche) |
+| ✅ DONE | ouvrir-compte-bancaire-costa-rica.mdx | Costa Rica (retraite) |
 
 ### Articles thématiques envisagés (idées à arbitrer)
 - Guide retraite France-étranger : calcul pension + pays optimaux
@@ -233,11 +233,13 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
 ## 8. LOG DES ACTIONS — À METTRE À JOUR À CHAQUE SESSION
 
 ```
-[2026-03-06] Création de ce fichier .claude_instructions
+[2026-03-06] Cr00e9ation de ce fichier .claude_instructions
 [2026-03-06] Vague 1 (22 articles) → commit b5ecb83 + 678749a
 [2026-03-06] Vague 2 (17 guides fiscaux pays) → commit 742f698
 [2026-03-06] Vague 3 (20 articles : bancaires, assurance, comparatifs) → commit 265a550
 [2026-03-06] Maillage interne fiscal↔bancaire → commits 78f14ff, daa140e, f2131a2
+[2026-03-06] Vague 4 (7 guides bancaires) → commit e080d47 — Allemagne, Maroc, Pays-Bas, Italie, Mexique, Japon, Costa Rica
+[2026-03-06] Maillage retour fiscal↔bancaire pour les 7 pays (vague 4)
 [2026-03-06] Infrastructure : Brevo, cookies CNIL, favicon, lead magnet, bilan fiscal
 ```
 
