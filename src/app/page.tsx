@@ -3,6 +3,31 @@ import { Globe, ShieldCheck, TrendingUp, BookOpen, ArrowRight, CheckCircle } fro
 import Hero from '@/components/Hero'
 import NewsletterForm from '@/components/NewsletterForm'
 import { FadeInCard, HoverScaleCard, FadeIn } from '@/components/AnimatedCard'
+import { JsonLd } from '@/components/JsonLd'
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Le Conseiller Fiscal',
+  url: siteUrl,
+  logo: `${siteUrl}/og-image.png`,
+  description: 'Guides fiscaux pour expatriés français : 20 destinations, conventions fiscales, optimisation légale.',
+  sameAs: [],
+}
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Le Conseiller Fiscal',
+  url: siteUrl,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/expatriation?q={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
+}
 
 const destinations = [
   { name: 'Portugal', flag: '🇵🇹', tag: 'NHR · Retraite', slug: 'portugal' },
@@ -38,6 +63,8 @@ const stats = [
 export default function HomePage() {
   return (
     <div className="min-h-screen">
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={websiteSchema} />
       <Hero />
 
       {/* Stats — pure server HTML */}

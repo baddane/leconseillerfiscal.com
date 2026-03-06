@@ -19,9 +19,26 @@ export interface ArticleFrontmatter {
   pays: string
   slug: string
   dateVerification: string
+  datePublished?: string
   motClePrincipal: string
   affiliations: string[]
   faq: ArticleFaq[]
+}
+
+const FRENCH_MONTHS: Record<string, string> = {
+  janvier: '01', février: '02', mars: '03', avril: '04',
+  mai: '05', juin: '06', juillet: '07', août: '08',
+  septembre: '09', octobre: '10', novembre: '11', décembre: '12',
+}
+
+export function dateVerificationToIso(dateVerification: string): string {
+  const parts = dateVerification.trim().toLowerCase().split(/\s+/)
+  if (parts.length === 2) {
+    const month = FRENCH_MONTHS[parts[0]]
+    const year = parts[1]
+    if (month && year) return `${year}-${month}-01`
+  }
+  return '2025-01-01'
 }
 
 export interface Article extends ArticleFrontmatter {
@@ -35,13 +52,28 @@ function computeReadTime(content: string): number {
   return Math.max(1, Math.ceil(wordCount / 200))
 }
 
+function toSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+function addHeadingIds(html: string): string {
+  return html.replace(/<(h[23])>(.*?)<\/h[23]>/g, (_, tag, inner) => {
+    const id = toSlug(inner.replace(/<[^>]+>/g, ''))
+    return `<${tag} id="${id}">${inner}</${tag}>`
+  })
+}
+
 async function markdownToHtml(markdown: string): Promise<string> {
   const result = await remark()
     .use(remarkGfm)
     .use(remarkHtml, { sanitize: false })
     .process(markdown)
 
-  return sanitizeHtml(result.toString(), {
+  const sanitized = sanitizeHtml(result.toString(), {
     allowedTags: sanitizeHtml.defaults.allowedTags.concat([
       'img', 'details', 'summary', 'del', 'ins', 'sup', 'sub',
     ]),
@@ -51,9 +83,24 @@ async function markdownToHtml(markdown: string): Promise<string> {
       a: ['href', 'title', 'target', 'rel'],
       th: ['align'],
       td: ['align'],
+      h2: ['id'],
+      h3: ['id'],
     },
     allowedSchemes: ['http', 'https', 'mailto'],
+    transformTags: {
+      a: (tagName, attribs) => {
+        if (attribs.href?.startsWith('/go/')) {
+          return {
+            tagName,
+            attribs: { ...attribs, rel: 'nofollow sponsored', target: '_blank' },
+          }
+        }
+        return { tagName, attribs }
+      },
+    },
   })
+
+  return addHeadingIds(sanitized)
 }
 
 export async function getAllArticles(): Promise<Article[]> {

@@ -1,6 +1,6 @@
 # CLAUDE INSTRUCTIONS — leconseillerfiscal.com
 # Fichier de référence persistant — à lire EN PREMIER à chaque session
-# Dernière mise à jour : 2026-03-06 (vague 4 terminée)
+# Dernière mise à jour : 2026-03-06 (SEO — 5 améliorations techniques)
 
 ---
 
@@ -241,18 +241,47 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
 [2026-03-06] Vague 4 (7 guides bancaires) → commit e080d47 — Allemagne, Maroc, Pays-Bas, Italie, Mexique, Japon, Costa Rica
 [2026-03-06] Maillage retour fiscal↔bancaire pour les 7 pays (vague 4)
 [2026-03-06] Infrastructure : Brevo, cookies CNIL, favicon, lead magnet, bilan fiscal
+[2026-03-06] SEO technique (5 améliorations) :
+             - rel=sponsored auto sur liens /go/ (articles.ts transformTags)
+             - datePublished depuis frontmatter (dateVerificationToIso)
+             - Composant RelatedArticles (3 articles même pays, fin d'article)
+             - Composant TableOfContents (H2/H3 avec IDs auto, highlight scroll)
+             - Schema Organization + WebSite (SearchAction) sur homepage
 ```
 
 ---
 
-## 9. INSTRUCTIONS POUR CLAUDE (lire à chaque nouvelle session)
+## 9. SEO — ÉTAT TECHNIQUE (mis à jour 2026-03-06)
+
+### Implémenté ✅
+- Meta tags complets (title, description, OG, Twitter Card, canonical) sur toutes les pages
+- Sitemap dynamique (82+ pages) + robots.txt
+- JSON-LD : Article, FAQ, Breadcrumb sur chaque article
+- JSON-LD : Organization + WebSite (SearchAction) sur la homepage
+- `rel="nofollow sponsored" target="_blank"` auto sur tous les liens `/go/` dans les MDX
+- `datePublished` calculé depuis `dateVerification` du frontmatter (format ISO)
+- `datePublished` optionnel dans le frontmatter (`ArticleFrontmatter.datePublished?`)
+- IDs auto-générés sur les H2/H3 de chaque article (slugification NFD)
+- Composant `TableOfContents` (sidebar sticky, highlight actif au scroll) — affiché si 3+ titres
+- Composant `RelatedArticles` (3 articles du même pays, affiché en fin d'article)
+- URLs propres, Static Generation, Security Headers
+
+### À faire (idées futures)
+- Page glossaire fiscal (longue traîne)
+- FAQ transversale sur `/expatriation`
+- Monitoring Core Web Vitals (LCP, CLS)
+- Passage à `next/image` pour les images des articles MDX
+
+---
+
+## 10. INSTRUCTIONS POUR CLAUDE (lire à chaque nouvelle session)
 
 1. **Lire ce fichier EN PREMIER** avant toute action — évite d'analyser toute la structure
-2. **Prochaine priorité** : créer les 7 guides bancaires manquants (section 4)
+2. **Prochaine priorité** : articles thématiques transversaux (section 4) ou contenu longueur traîne
 3. **Pour chaque nouvel article créé** :
    - Ajouter le maillage interne (liens vers/depuis les articles liés)
    - Mettre le CTA `/bilan-fiscal` dans l'article
-   - Mettre les liens affiliés pertinents
+   - Mettre les liens affiliés pertinents avec `/go/` (auto-transformés en `sponsored`)
    - **Mettre à jour la section 8 (LOG)** de ce fichier
 4. **Branche** : toujours travailler sur `claude/build-set-forget-website-3f1dV`
 5. **Push** : `git push -u origin claude/build-set-forget-website-3f1dV`

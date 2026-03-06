@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getArticleBySlug, getAllSlugsSynced } from '@/lib/articles'
+import { getArticleBySlug, getArticlesByPays, getAllSlugsSynced, dateVerificationToIso } from '@/lib/articles'
 import { affiliateDisplay } from '@/lib/affiliates'
 import { countries } from '@/data/countries'
 import AffiliateBox from '@/components/AffiliateBox'
@@ -9,6 +9,8 @@ import { ArticleJsonLd, FaqJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd'
 import Link from 'next/link'
 import { Clock, ShieldCheck, ChevronDown } from 'lucide-react'
 import LeadCaptureBox from '@/components/LeadCaptureBox'
+import RelatedArticles from '@/components/RelatedArticles'
+import TableOfContents, { extractTocItems } from '@/components/TableOfContents'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
@@ -51,7 +53,10 @@ export default async function ArticlePage({
   params: Promise<{ pays: string; slug: string }>
 }) {
   const { pays, slug } = await params
-  const article = await getArticleBySlug(slug)
+  const [article, paysArticles] = await Promise.all([
+    getArticleBySlug(slug),
+    getArticlesByPays(pays),
+  ])
 
   if (!article || article.pays !== pays) notFound()
 
@@ -76,7 +81,7 @@ export default async function ArticlePage({
         title={article.title}
         description={article.metaDescription}
         url={articleUrl}
-        datePublished={`2025-01-01`}
+        datePublished={article.datePublished ?? dateVerificationToIso(article.dateVerification)}
       />
       {article.faq.length > 0 && <FaqJsonLd faq={article.faq} />}
       <BreadcrumbJsonLd items={breadcrumbItems} />
@@ -112,6 +117,9 @@ export default async function ArticlePage({
               <span className="uppercase tracking-widest text-gold font-bold">{countryName}</span>
               <span className="bg-ink/5 px-2 py-0.5">{article.motClePrincipal}</span>
             </div>
+
+            {/* Table of contents */}
+            <TableOfContents items={extractTocItems(article.contentHtml)} />
 
             {/* Article Content */}
             <div
@@ -149,6 +157,9 @@ export default async function ArticlePage({
                 </div>
               </section>
             )}
+
+            {/* Related articles */}
+            <RelatedArticles currentSlug={slug} pays={pays} articles={paysArticles} />
 
             {/* Newsletter capture before disclaimer */}
             <LeadCaptureBox pays={countryName} variant="email" />
