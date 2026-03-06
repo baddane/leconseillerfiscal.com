@@ -1,6 +1,6 @@
 # CLAUDE INSTRUCTIONS — leconseillerfiscal.com
 # Fichier de référence persistant — à lire EN PREMIER à chaque session
-# Dernière mise à jour : 2026-03-06 (SEO — 5 améliorations techniques)
+# Dernière mise à jour : 2026-03-06 (SEO — LCP + glossaire + FAQ expatriation)
 
 ---
 
@@ -247,6 +247,16 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
              - Composant RelatedArticles (3 articles même pays, fin d'article)
              - Composant TableOfContents (H2/H3 avec IDs auto, highlight scroll)
              - Schema Organization + WebSite (SearchAction) sur homepage
+[2026-03-06] SEO Axe 3 — Core Web Vitals (LCP) :
+             - Hero.tsx : H1 sorti du motion.div → rendu immédiatement visible
+             - Badge et CTAs gardent l'animation (pas critiques pour le LCP)
+[2026-03-06] SEO Axe 1 — Contenu longue traîne :
+             - Nouvelle page /ressources/glossaire (24 termes fiscaux : exit tax,
+               NHR, IFICI, tie-breaker, CFC, retenue à la source, etc.)
+             - Navigation alphabétique sticky + liens "Voir aussi" entre termes
+             - /expatriation : section FAQ (6 Q&R) avec <details>/<summary> natif
+               → éligible rich result Google FAQ Schema, 0 JS client
+             - Sitemap : /ressources/glossaire ajouté priority 0.8
 ```
 
 ---
@@ -265,12 +275,15 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
 - Composant `TableOfContents` (sidebar sticky, highlight actif au scroll) — affiché si 3+ titres
 - Composant `RelatedArticles` (3 articles du même pays, affiché en fin d'article)
 - URLs propres, Static Generation, Security Headers
+- **LCP optimisé** : H1 de Hero.tsx rendu immédiatement (hors motion.div)
+- **Page /ressources/glossaire** : 24 termes fiscaux, navigation alphabétique, rich snippet
+- **FAQ /expatriation** : 6 Q&R avec `<details>/<summary>` natif (éligible rich result)
+- **Sitemap** : /ressources/glossaire en priority 0.8
 
 ### À faire (idées futures)
-- Page glossaire fiscal (longue traîne)
-- FAQ transversale sur `/expatriation`
 - Monitoring Core Web Vitals (LCP, CLS)
-- Passage à `next/image` pour les images des articles MDX
+- Passage à `next/image` si des images sont ajoutées aux articles MDX
+- Articles thématiques transversaux (déclaration 3916, SCI étranger, impatriation)
 
 ---
 
