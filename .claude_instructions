@@ -1,6 +1,6 @@
 # CLAUDE INSTRUCTIONS — leconseillerfiscal.com
 # Fichier de référence persistant — à lire EN PREMIER à chaque session
-# Dernière mise à jour : 2026-03-06 (SEO — LCP + glossaire + FAQ expatriation)
+# Dernière mise à jour : 2026-03-06 (Vague 5 — 6 articles thématiques transversaux)
 
 ---
 
@@ -158,12 +158,18 @@ Ces pays ont un guide fiscal mais PAS de guide "ouvrir compte bancaire" :
 | ✅ DONE | ouvrir-compte-bancaire-costa-rica.mdx | Costa Rica (retraite) |
 
 ### Articles thématiques envisagés (idées à arbitrer)
-- Guide retraite France-étranger : calcul pension + pays optimaux
-- Déclaration 3916 comptes étrangers : guide complet
-- SCI à l'étranger pour Français non-résidents
-- Guide impatriation : revenir en France après expatriation
-- Assurance-vie luxembourgeoise vs française
-- Comparatif : Île Maurice vs Thaïlande (retraite + digital nomad)
+- ✅ DONE Guide retraite France-étranger : calcul pension + pays optimaux
+- ✅ DONE Déclaration 3916 comptes étrangers : guide complet
+- ✅ DONE SCI à l'étranger pour Français non-résidents
+- ✅ DONE Guide impatriation : revenir en France après expatriation
+- ✅ DONE Assurance-vie luxembourgeoise vs française
+- ✅ DONE Comparatif : Île Maurice vs Thaïlande (retraite + digital nomad)
+
+### Prochaines idées (non traitées)
+- Comparatif Portugal vs Espagne vs Italie pour digital nomads (article croissance)
+- Guide FATCA pour les Français aux États-Unis
+- Optimisation fiscale avant 60 ans : PER, PEA, assurance-vie
+- Guide succession internationale pour expatriés
 
 ---
 
@@ -257,6 +263,13 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
              - /expatriation : section FAQ (6 Q&R) avec <details>/<summary> natif
                → éligible rich result Google FAQ Schema, 0 JS client
              - Sitemap : /ressources/glossaire ajouté priority 0.8
+[2026-03-06] Vague 5 — 6 articles thématiques transversaux (commit a2840aa) :
+             - declaration-3916-comptes-etrangers-guide-complet (pays: outils)
+             - guide-impatriation-revenir-france-apres-expatriation (pays: outils)
+             - retraite-expatrie-francais-quel-pays-2026 (pays: outils)
+             - sci-etranger-francais-non-resident (pays: outils)
+             - assurance-vie-luxembourgeoise-vs-francaise (pays: outils)
+             - ile-maurice-vs-thailande-retraite-digital-nomad (pays: outils)
 ```
 
 ---
@@ -283,7 +296,8 @@ Liens affiliés : `/aller/[id]` (redirect handler en place)
 ### À faire (idées futures)
 - Monitoring Core Web Vitals (LCP, CLS)
 - Passage à `next/image` si des images sont ajoutées aux articles MDX
-- Articles thématiques transversaux (déclaration 3916, SCI étranger, impatriation)
+- Maillage retour : ajouter des liens depuis les articles existants vers les 6 nouveaux articles vague 5
+- Nouveaux articles (voir section 4 "Prochaines idées")
 
 ---
 
