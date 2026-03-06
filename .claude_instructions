@@ -1,0 +1,259 @@
+# CLAUDE INSTRUCTIONS — leconseillerfiscal.com
+# Fichier de référence persistant — à lire EN PREMIER à chaque session
+# Dernière mise à jour : 2026-03-06
+
+---
+
+## 1. DESCRIPTION DU PROJET
+
+**Site** : leconseillerfiscal.com
+**Stack** : Next.js 14 App Router + TypeScript + Tailwind CSS + MDX
+**Hébergement** : Vercel
+**Email** : Brevo (nurturing) — Resend supprimé
+**Branche de travail** : `claude/build-set-forget-website-3f1dV`
+
+**Mission** : Site de conseil fiscal premium pour expatriés et investisseurs français à l'étranger.
+Monétisation via **leads affiliés** (Wise, Revolut, ACS, Cigna, April, Waltio, Koinly)
++ **Lead magnet** (checklist fiscale) + **Bilan fiscal** (conversion principale).
+
+**Structure clé** :
+- `content/articles/` → tous les articles MDX
+- `src/data/countries.ts` → 20 pays couverts (slug, affiliés, highlights fiscaux)
+- `src/data/affiliates.ts` → 8 affiliés (Wise, Revolut, N26, ACS, Cigna, April, Waltio, Koinly)
+- `src/app/expatriation/[pays]/` → pages dynamiques par pays
+- `src/app/bilan-fiscal/` → page de conversion principale
+- `src/app/ressources/checklist-fiscale-expatrie/` → lead magnet
+
+---
+
+## 2. LES 20 PAYS COUVERTS (countries.ts)
+
+| Slug | Pays | Volume | Convention FR | Tag |
+|------|------|--------|---------------|-----|
+| portugal | Portugal | 5 | ✅ 1971 | NHR · Retraite |
+| emirats-arabes-unis | Émirats / Dubaï | 5 | ❌ | 0% Impôt · Crypto |
+| suisse | Suisse | 5 | ✅ 1966 | Frontaliers · Forfait |
+| canada | Canada | 4 | ✅ 1975 | Immigration · REER |
+| belgique | Belgique | 4 | ✅ 1964 | Succession · Plus-values |
+| espagne | Espagne | 4 | ✅ 1995 | Beckham · Digital nomad |
+| etats-unis | États-Unis | 4 | ✅ 1994 | FATCA · Complexe |
+| royaume-uni | Royaume-Uni | 3 | ✅ 1968 | Post-Brexit · Non-dom |
+| maroc | Maroc | 3 | ✅ 1970 | Revenus étrangers · Diaspora |
+| thailande | Thaïlande | 3 | ✅ 1974 | LTR Visa · Digital nomad |
+| luxembourg | Luxembourg | 4 | ✅ 1958 | Frontaliers · Fonds |
+| ile-maurice | Île Maurice | 3 | ✅ 1980 | Flat Tax 15% · Holding |
+| allemagne | Allemagne | 3 | ✅ 1959 | Frontaliers · Steuer |
+| australie | Australie | 3 | ✅ 1976 | WHV · Superannuation |
+| singapour | Singapour | 3 | ✅ 2009 | No capital gains · Hub |
+| pays-bas | Pays-Bas | 2 | ✅ 1973 | 30% Ruling · Impatriés |
+| mexique | Mexique | 2 | ❌ | Territorial · Digital nomad |
+| italie | Italie | 2 | ✅ 1989 | Flat Tax · Rientro |
+| japon | Japon | 2 | ✅ 1995 | Complexe · NISA |
+| costa-rica | Costa Rica | 2 | ❌ | Territorial · Retraite |
+
+---
+
+## 3. INVENTAIRE COMPLET DES ARTICLES (62 articles au total)
+
+### VAGUE 1 — Articles fondateurs (commit 678749a · 22 articles prioritaires)
+Articles avec maillage interne dès l'origine :
+- checklist-fiscale-avant-quitter-france.mdx
+- exit-tax-france-2026.mdx
+- rompre-residence-fiscale-france.mdx
+- erreurs-fiscales-francais-expatries.mdx
+- pea-expatriation-que-faire.mdx
+- digital-nomad-impots-france.mdx
+- fiscalite-francais-portugal.mdx (sans "2026" dans le slug !)
+- guide-complet-fiscalite-portugal-2026.mdx
+- loi-beckham-conditions-eligibilite-2026.mdx
+- golden-visa-dubai-investisseur-francais.mdx
+- holding-dubai-depuis-france-legal-illegal.mdx
+- societe-free-zone-dubai-francais.mdx
+- rupture-residence-fiscale-dubai-risques.mdx
+- trader-crypto-dubai-declaration-france.mdx
+- simulateur-exit-tax-2026.mdx
+- dubai-vs-ile-maurice-holding-expatriation.mdx
+- portugal-vs-espagne-expatriation-fiscale.mdx
+- retraite-expatriation-quel-pays.mdx
+- wise-vs-revolut-expatrie.mdx
+- wise-vs-revolut-vs-n26-expatrie-2026.mdx
+- waltio-vs-koinly-crypto-expatrie.mdx
+- transfert-argent-france-etranger.mdx
+
+### VAGUE 2 — Guides fiscaux par pays (commit 742f698 · 17 articles)
+Format : fiscalite-francais-[pays]-2026.mdx
+- fiscalite-francais-dubai-emirats-2026.mdx
+- fiscalite-francais-suisse-frontaliers-2026.mdx
+- fiscalite-francais-canada-2026.mdx
+- fiscalite-francais-belgique-2026.mdx
+- fiscalite-francais-espagne-loi-beckham-2026.mdx
+- fiscalite-francais-etats-unis-fatca-2026.mdx
+- fiscalite-francais-royaume-uni-post-brexit-2026.mdx
+- fiscalite-francais-maroc-2026.mdx
+- fiscalite-francais-thailande-ltr-visa-2026.mdx
+- fiscalite-francais-luxembourg-frontaliers-2026.mdx
+- fiscalite-francais-ile-maurice-2026.mdx
+- fiscalite-francais-allemagne-2026.mdx
+- fiscalite-francais-australie-2026.mdx
+- fiscalite-francais-singapour-2026.mdx
+- fiscalite-francais-pays-bas-30-ruling-2026.mdx
+- fiscalite-francais-italie-flat-tax-2026.mdx
+- fiscalite-francais-japon-2026.mdx
+  ⚠️ MANQUANT : fiscalite-francais-mexique-2026.mdx (créé en vague 3)
+  ⚠️ MANQUANT : fiscalite-francais-costa-rica-2026.mdx (créé en vague 3)
+
+### VAGUE 3 — Comptes bancaires + Assurance + Comparatifs (commit 265a550 · 20 articles)
+
+**Guides bancaires par pays (13 pays couverts) :**
+- meilleure-banque-expatrie-francais-2026.mdx
+- ouvrir-compte-bancaire-portugal-depuis-france.mdx
+- ouvrir-compte-bancaire-dubai-depuis-france.mdx
+- ouvrir-compte-bancaire-canada-depuis-france.mdx
+- ouvrir-compte-bancaire-espagne.mdx
+- ouvrir-compte-bancaire-belgique.mdx
+- ouvrir-compte-bancaire-suisse.mdx
+- ouvrir-compte-bancaire-royaume-uni.mdx
+- ouvrir-compte-bancaire-luxembourg.mdx
+- ouvrir-compte-bancaire-ile-maurice.mdx
+- ouvrir-compte-bancaire-australie.mdx
+- ouvrir-compte-bancaire-singapour.mdx
+- ouvrir-compte-bancaire-thailande.mdx
+- ouvrir-compte-bancaire-usa-francais.mdx
+
+**Guides assurance santé (5 articles) :**
+- meilleure-assurance-sante-expatrie-comment-choisir.mdx
+- comparatif-assurance-sante-expatrie.mdx
+- comparatif-acs-april-cigna-henner-2026.mdx
+- cfe-vs-assurance-privee-expatrie.mdx
+- assurance-sante-expatrie-retraite.mdx
+
+**Guides fiscaux pays manquants :**
+- fiscalite-francais-mexique-2026.mdx
+- fiscalite-francais-costa-rica-2026.mdx
+
+**Article pilier supplémentaire :**
+- faq-fiscalite-expatriation-50-questions.mdx
+- expatriation-2026-tout-regler-fiscalement-avant-depart.mdx
+
+### MAILLAGE INTERNE (commits 78f14ff, daa140e, f2131a2)
+- Cross-links fiscal ↔ bancaire ajoutés pour tous les pays ayant les deux guides
+- Orphelins corrigés
+- Dernier ajout : lien bancaire dans guide fiscal Canada
+
+---
+
+## 4. ARTICLES MANQUANTS — VAGUE 4 À FAIRE
+
+### Guides bancaires manquants (7 pays sans guide bancaire)
+Ces pays ont un guide fiscal mais PAS de guide "ouvrir compte bancaire" :
+
+| Priorité | Article à créer | Pays concerné |
+|----------|----------------|---------------|
+| 🔴 HIGH | ouvrir-compte-bancaire-allemagne.mdx | Allemagne (140k+ Français) |
+| 🔴 HIGH | ouvrir-compte-bancaire-maroc.mdx | Maroc (30k+ Français) |
+| 🟡 MED | ouvrir-compte-bancaire-pays-bas.mdx | Pays-Bas (30% ruling) |
+| 🟡 MED | ouvrir-compte-bancaire-italie.mdx | Italie (flat tax) |
+| 🟡 MED | ouvrir-compte-bancaire-mexique.mdx | Mexique (digital nomads) |
+| 🟢 LOW | ouvrir-compte-bancaire-japon.mdx | Japon (niche) |
+| 🟢 LOW | ouvrir-compte-bancaire-costa-rica.mdx | Costa Rica (retraite) |
+
+### Articles thématiques envisagés (idées à arbitrer)
+- Guide retraite France-étranger : calcul pension + pays optimaux
+- Déclaration 3916 comptes étrangers : guide complet
+- SCI à l'étranger pour Français non-résidents
+- Guide impatriation : revenir en France après expatriation
+- Assurance-vie luxembourgeoise vs française
+- Comparatif : Île Maurice vs Thaïlande (retraite + digital nomad)
+
+---
+
+## 5. STRATÉGIE DE MAILLAGE INTERNE (règles à respecter)
+
+### Logique de maillage
+Chaque article fiscal d'un pays DOIT pointer vers :
+1. → Son guide bancaire correspondant (si existant)
+2. → Les articles thématiques connexes (exit tax, résidence fiscale, etc.)
+3. → La page de conversion `/bilan-fiscal`
+
+Chaque guide bancaire DOIT pointer vers :
+1. → Le guide fiscal du même pays
+2. → L'article comparatif bancaire général (`meilleure-banque-expatrie-francais-2026`)
+3. → Wise et/ou Revolut (affiliés)
+
+### Articles hub (forte autorité, liens entrants nombreux)
+- `checklist-fiscale-avant-quitter-france.mdx` → reçoit des liens de tous les guides pays
+- `exit-tax-france-2026.mdx` → reçoit des liens des guides à fort patrimoine
+- `meilleure-banque-expatrie-francais-2026.mdx` → hub bancaire central
+- `rompre-residence-fiscale-france.mdx` → reçoit des liens des guides expatriation
+
+### Liens sortants (affiliés) — placer dans section contextuelle
+- Transferts/banque → Wise (`/aller/wise`), Revolut (`/aller/revolut`)
+- Assurance santé → ACS (`/aller/acs`), Cigna (`/aller/cigna`), April (`/aller/april`)
+- Crypto → Waltio (`/aller/waltio`), Koinly (`/aller/koinly`)
+- Conversion principale → `/bilan-fiscal` (CTA dans chaque article)
+
+---
+
+## 6. AFFILIÉS EN PLACE
+
+| ID | Nom | Catégorie | Commission | Badge |
+|----|-----|-----------|------------|-------|
+| wise | Wise | Transfert international | 30–50€/ouverture | 🔴 high |
+| revolut | Revolut | Néobanque expat | 20–45€/compte | 🔴 high |
+| acs | ACS | Assurance santé expat | 60–120€/lead | 🔴 high |
+| cigna | Cigna Global | Assurance internationale | 80–150€/contrat | 🔴 high |
+| april | April International | Assurance expat | 50–100€/lead | 🟡 medium |
+| n26 | N26 | Banque en ligne | 25–40€/compte | 🟡 medium |
+| waltio | Waltio | Fiscal crypto | 20–40% récurrent | 🟡 medium |
+| koinly | Koinly | Fiscal crypto | 20–30% récurrent | 🟡 medium |
+
+Liens affiliés : `/aller/[id]` (redirect handler en place)
+
+---
+
+## 7. STACK TECHNIQUE — RAPPELS
+
+```
+/content/articles/        → MDX articles (frontmatter: title, description, date, category, tags)
+/src/app/                 → Next.js App Router pages
+/src/data/countries.ts    → Config pays (slug, affiliés, volume trafic estimé)
+/src/data/affiliates.ts   → Config affiliés (url, commission, description)
+/src/components/          → Composants React partagés
+/public/                  → Assets statiques
+/scripts/                 → Scripts one-shot (setup Brevo, etc.)
+```
+
+**Email** : Brevo uniquement (Resend supprimé au commit e05e838)
+**Lead magnet** : désactivé (commit 8c7f1d9) — à réactiver si besoin
+**Cookies CNIL** : en place (commit aebd274)
+**Favicon** : globe stylisé + monogramme C (commit 894c5bd)
+
+---
+
+## 8. LOG DES ACTIONS — À METTRE À JOUR À CHAQUE SESSION
+
+```
+[2026-03-06] Création de ce fichier .claude_instructions
+[2026-03-06] Vague 1 (22 articles) → commit b5ecb83 + 678749a
+[2026-03-06] Vague 2 (17 guides fiscaux pays) → commit 742f698
+[2026-03-06] Vague 3 (20 articles : bancaires, assurance, comparatifs) → commit 265a550
+[2026-03-06] Maillage interne fiscal↔bancaire → commits 78f14ff, daa140e, f2131a2
+[2026-03-06] Infrastructure : Brevo, cookies CNIL, favicon, lead magnet, bilan fiscal
+```
+
+---
+
+## 9. INSTRUCTIONS POUR CLAUDE (lire à chaque nouvelle session)
+
+1. **Lire ce fichier EN PREMIER** avant toute action — évite d'analyser toute la structure
+2. **Prochaine priorité** : créer les 7 guides bancaires manquants (section 4)
+3. **Pour chaque nouvel article créé** :
+   - Ajouter le maillage interne (liens vers/depuis les articles liés)
+   - Mettre le CTA `/bilan-fiscal` dans l'article
+   - Mettre les liens affiliés pertinents
+   - **Mettre à jour la section 8 (LOG)** de ce fichier
+4. **Branche** : toujours travailler sur `claude/build-set-forget-website-3f1dV`
+5. **Push** : `git push -u origin claude/build-set-forget-website-3f1dV`
+6. **Jamais** toucher à `main` sans validation explicite
+
+---
