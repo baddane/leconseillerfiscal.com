@@ -2,10 +2,23 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
+
+const navLinks = [
+  { href: '/expatriation', label: 'Expatriation' },
+  { href: '/expatriation/outils', label: 'Outils' },
+  { href: '/a-propos', label: 'À propos' },
+]
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isActive = (href: string) =>
+    href === '/expatriation'
+      ? pathname === '/expatriation' || (pathname.startsWith('/expatriation/') && !pathname.startsWith('/expatriation/outils'))
+      : pathname === href || pathname.startsWith(href + '/')
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-paper/90 backdrop-blur-lg border-b border-ink/5">
@@ -20,17 +33,19 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium uppercase tracking-widest">
-          <Link href="/expatriation" className="hover:text-gold transition-colors">
-            Expatriation
-          </Link>
-          <Link href="/expatriation/outils" className="hover:text-gold transition-colors">
-            Outils
-          </Link>
-          <Link href="/a-propos" className="hover:text-gold transition-colors">
-            À propos
-          </Link>
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              aria-current={isActive(href) ? 'page' : undefined}
+              className={`transition-colors ${isActive(href) ? 'text-gold' : 'hover:text-gold'}`}
+            >
+              {label}
+            </Link>
+          ))}
           <Link
             href="/bilan-fiscal"
+            aria-current={pathname === '/bilan-fiscal' ? 'page' : undefined}
             className="bg-gold text-ink px-6 py-2.5 hover:bg-gold/80 transition-all duration-300 text-xs font-bold"
           >
             Bilan Gratuit
@@ -44,15 +59,16 @@ export default function Navbar() {
 
       {isOpen && (
         <div className="md:hidden bg-paper border-b border-ink/5 p-6 flex flex-col gap-4 text-center">
-          <Link href="/expatriation" className="text-lg font-serif" onClick={() => setIsOpen(false)}>
-            Expatriation
-          </Link>
-          <Link href="/expatriation/outils" className="text-lg font-serif" onClick={() => setIsOpen(false)}>
-            Outils & Comparatifs
-          </Link>
-          <Link href="/a-propos" className="text-lg font-serif" onClick={() => setIsOpen(false)}>
-            À propos
-          </Link>
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`text-lg font-serif transition-colors ${isActive(href) ? 'text-gold' : ''}`}
+              onClick={() => setIsOpen(false)}
+            >
+              {label}
+            </Link>
+          ))}
           <Link
             href="/bilan-fiscal"
             className="bg-gold text-ink py-3 font-mono text-xs tracking-widest uppercase font-bold"

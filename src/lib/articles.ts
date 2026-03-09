@@ -8,6 +8,22 @@ import sanitizeHtml from 'sanitize-html'
 
 const articlesDirectory = path.join(process.cwd(), 'content/articles')
 
+const MOIS_FR: Record<string, string> = {
+  janvier: '01', février: '02', mars: '03', avril: '04',
+  mai: '05', juin: '06', juillet: '07', août: '08',
+  septembre: '09', octobre: '10', novembre: '11', décembre: '12',
+}
+
+export function parseFrenchDate(dateStr: string): string {
+  const parts = dateStr.toLowerCase().trim().split(/\s+/)
+  if (parts.length === 2) {
+    const month = MOIS_FR[parts[0]]
+    const year = parts[1]
+    if (month && /^\d{4}$/.test(year)) return `${year}-${month}-01`
+  }
+  return '2025-01-01'
+}
+
 export interface ArticleFaq {
   question: string
   reponse: string
@@ -28,6 +44,7 @@ export interface Article extends ArticleFrontmatter {
   content: string
   contentHtml: string
   readTime: number
+  dateIso: string
 }
 
 function computeReadTime(content: string): number {
@@ -77,12 +94,14 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     const { data, content } = matter(fileContents)
     const contentHtml = await markdownToHtml(content)
 
+    const frontmatter = data as ArticleFrontmatter
     return {
-      ...(data as ArticleFrontmatter),
+      ...frontmatter,
       slug,
       content,
       contentHtml,
       readTime: computeReadTime(content),
+      dateIso: parseFrenchDate(frontmatter.dateVerification),
     }
   } catch {
     return null

@@ -3,19 +3,9 @@ import { Globe, ShieldCheck, TrendingUp, BookOpen, ArrowRight, CheckCircle } fro
 import Hero from '@/components/Hero'
 import NewsletterForm from '@/components/NewsletterForm'
 import { FadeInCard, HoverScaleCard, FadeIn } from '@/components/AnimatedCard'
+import { countries } from '@/data/countries'
 
-const destinations = [
-  { name: 'Portugal', flag: '🇵🇹', tag: 'NHR · Retraite', slug: 'portugal' },
-  { name: 'Émirats', flag: '🇦🇪', tag: '0% Impôt · Crypto', slug: 'emirats-arabes-unis' },
-  { name: 'Suisse', flag: '🇨🇭', tag: 'Frontaliers', slug: 'suisse' },
-  { name: 'Espagne', flag: '🇪🇸', tag: 'Loi Beckham', slug: 'espagne' },
-  { name: 'Canada', flag: '🇨🇦', tag: 'Immigration', slug: 'canada' },
-  { name: 'Belgique', flag: '🇧🇪', tag: 'Succession', slug: 'belgique' },
-  { name: 'Luxembourg', flag: '🇱🇺', tag: 'Frontaliers', slug: 'luxembourg' },
-  { name: 'Thaïlande', flag: '🇹🇭', tag: 'LTR Visa', slug: 'thailande' },
-  { name: 'Singapour', flag: '🇸🇬', tag: 'No capital gains', slug: 'singapour' },
-  { name: 'Île Maurice', flag: '🇲🇺', tag: 'Flat Tax 15%', slug: 'ile-maurice' },
-]
+const destinations = countries.filter((c) => c.volume >= 4).slice(0, 10)
 
 const pillarData = [
   { iconName: 'Globe', title: 'Vision Globale', desc: '20 destinations couvertes exhaustivement pour les expatriés français, des guides pays aux cas concrets.' },
@@ -101,8 +91,8 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
-            {destinations.map((c, i) => (
-              <HoverScaleCard key={i}>
+            {destinations.map((c) => (
+              <HoverScaleCard key={c.slug}>
                 <Link
                   href={`/expatriation/${c.slug}`}
                   className="block p-6 bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
@@ -208,7 +198,7 @@ export default function HomePage() {
               Devenir la référence francophone de la fiscalité des expatriés — le seul site qui répond précisément à chaque question d&apos;un Français qui part, vit, ou rentre de l&apos;étranger.
             </blockquote>
             <cite className="not-italic font-mono text-xs uppercase tracking-widest text-ink/40">
-              — Positionnement stratégique · leconseillerfiscal.com/expatriation/
+              — Notre mission · leconseillerfiscal.com
             </cite>
           </FadeIn>
         </div>

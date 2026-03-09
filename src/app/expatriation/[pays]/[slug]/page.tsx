@@ -76,7 +76,8 @@ export default async function ArticlePage({
         title={article.title}
         description={article.metaDescription}
         url={articleUrl}
-        datePublished={`2025-01-01`}
+        datePublished={article.dateIso}
+        dateModified={article.dateIso}
       />
       {article.faq.length > 0 && <FaqJsonLd faq={article.faq} />}
       <BreadcrumbJsonLd items={breadcrumbItems} />

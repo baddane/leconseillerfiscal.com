@@ -11,8 +11,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url: siteUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
     { url: `${siteUrl}/expatriation`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${siteUrl}/bilan-fiscal`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${siteUrl}/ressources/checklist-fiscale-expatrie`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${siteUrl}/a-propos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${siteUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${siteUrl}/mentions-legales`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },
+    { url: `${siteUrl}/confidentialite`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },
   ]
 
   const countryPages: MetadataRoute.Sitemap = countries.map((c) => ({

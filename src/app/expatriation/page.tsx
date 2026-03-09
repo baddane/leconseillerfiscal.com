@@ -18,7 +18,8 @@ const categoryHubs = [
 ]
 
 export default async function ExpatriationPage() {
-  const articles = await getAllArticles()
+  const allArticles = await getAllArticles()
+  const articles = [...allArticles].sort((a, b) => b.dateIso.localeCompare(a.dateIso))
 
   return (
     <div className="pt-32 pb-24">
