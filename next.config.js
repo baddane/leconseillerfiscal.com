@@ -7,6 +7,15 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
   },
+  async redirects() {
+    return [
+      {
+        source: '/expatriation/portugal/fiscalite-francais-portugal',
+        destination: '/expatriation/portugal/guide-complet-fiscalite-portugal-2026',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

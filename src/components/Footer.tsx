@@ -43,7 +43,7 @@ export default function Footer() {
             <ul className="flex flex-col gap-3 text-paper/60 text-sm font-mono">
               <li><Link href="/expatriation/outils/wise-vs-revolut-expatrie" className="hover:text-paper transition-colors">Wise vs Revolut</Link></li>
               <li><Link href="/expatriation/outils/comparatif-assurance-sante-expatrie" className="hover:text-paper transition-colors">Assurance santé expat</Link></li>
-              <li><Link href="/expatriation/portugal/fiscalite-francais-portugal" className="hover:text-paper transition-colors">Guide Portugal NHR</Link></li>
+              <li><Link href="/expatriation/portugal/guide-complet-fiscalite-portugal-2026" className="hover:text-paper transition-colors">Guide Portugal IFICI 2026</Link></li>
               <li><Link href="/a-propos" className="hover:text-paper transition-colors">À propos</Link></li>
               <li><Link href="/contact" className="hover:text-paper transition-colors">Contact</Link></li>
             </ul>
