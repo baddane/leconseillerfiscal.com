@@ -48,6 +48,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1436679935240248"
+     crossorigin="anonymous"></script>
         <Navbar />
         <main>{children}</main>
         <Footer />
