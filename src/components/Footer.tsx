@@ -46,6 +46,7 @@ export default function Footer() {
               <li><Link href="/expatriation/portugal/fiscalite-francais-portugal" className="hover:text-paper transition-colors">Guide Portugal NHR</Link></li>
               <li><Link href="/a-propos" className="hover:text-paper transition-colors">À propos</Link></li>
               <li><Link href="/contact" className="hover:text-paper transition-colors">Contact</Link></li>
+              <li><Link href="/feed.xml" className="hover:text-paper transition-colors">Flux RSS</Link></li>
             </ul>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isValidEmail, sanitizeText, isNonEmpty, isBodyTooLarge } from '@/lib/validation'
 
-// Simple in-memory rate limiter
+// Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
@@ -18,22 +19,31 @@ function isRateLimited(ip: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    if (isBodyTooLarge(request.headers.get('content-length'))) {
+      return NextResponse.json({ error: 'Corps de requête trop volumineux' }, { status: 413 })
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     if (isRateLimited(ip)) {
       return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 })
     }
 
-    const { nom, email, sujet, message } = await request.json()
+    const body = await request.json()
+    const nom = sanitizeText(body.nom, 200)
+    const email = body.email
+    const sujet = sanitizeText(body.sujet, 100)
+    const message = sanitizeText(body.message, 5000)
 
-    if (!nom || !email || !message) {
+    if (!isNonEmpty(nom) || !isNonEmpty(message)) {
       return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
     }
 
     const apiKey = process.env.RESEND_API_KEY
     const contactEmail = process.env.CONTACT_EMAIL ?? 'contact@leconseillerfiscal.com'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
     if (!apiKey) {
       // Dev mode: log to console
@@ -41,7 +51,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    const res = await fetch('https://api.resend.com/emails', {
+    // ── 1. Notification interne ────────────────────────────────────────────
+    const internalRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -56,11 +67,35 @@ export async function POST(request: NextRequest) {
       }),
     })
 
-    if (!res.ok) {
-      const err = await res.text()
+    if (!internalRes.ok) {
+      const err = await internalRes.text()
       console.error('[contact] Resend error:', err)
       return NextResponse.json({ error: 'Erreur d\'envoi' }, { status: 500 })
     }
+
+    // ── 2. Email de confirmation à l'utilisateur ───────────────────────────
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
+        to: email,
+        subject: 'Nous avons bien reçu votre message — Le Conseiller Fiscal',
+        text: [
+          `Bonjour ${nom},`,
+          ``,
+          `Nous avons bien reçu votre message concernant "${sujet}".`,
+          `Notre équipe vous répondra dans les 48 heures ouvrées.`,
+          ``,
+          `Cordialement,`,
+          `L'équipe du Conseiller Fiscal`,
+          `${siteUrl}`,
+        ].join('\n'),
+      }),
+    }).catch((err) => console.error('[contact] Confirmation email error:', err))
 
     return NextResponse.json({ ok: true })
   } catch (err) {

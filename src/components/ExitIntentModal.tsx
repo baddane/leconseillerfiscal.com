@@ -28,13 +28,13 @@ export default function ExitIntentModal() {
       }
     }
 
-    // Fallback timer for mobile (45s)
+    // Fallback timer for mobile (90s — less aggressive)
     const timer = setTimeout(() => {
       if (!triggered) {
         triggered = true
         setVisible(true)
       }
-    }, 45000)
+    }, 90000)
 
     document.addEventListener('mouseleave', onMouseLeave)
     return () => {

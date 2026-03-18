@@ -68,6 +68,28 @@ export function FaqJsonLd({ faq }: { faq: { question: string; reponse: string }[
   )
 }
 
+export function OrganizationJsonLd() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Le Conseiller Fiscal',
+        url: siteUrl,
+        description: 'La référence francophone de la fiscalité des expatriés.',
+        logo: `${siteUrl}/og-image.png`,
+        contactPoint: {
+          '@type': 'ContactPoint',
+          email: 'contact@leconseillerfiscal.com',
+          contactType: 'customer service',
+          availableLanguage: 'French',
+        },
+      }}
+    />
+  )
+}
+
 export function BreadcrumbJsonLd({
   items,
 }: {
