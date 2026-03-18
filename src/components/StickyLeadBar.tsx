@@ -18,15 +18,14 @@ export default function StickyLeadBar() {
       }
     } catch {}
 
-    // Only show after cookie consent is settled
-    const checkConsent = () => {
+    // Check consent once, then listen for changes via event
+    if (getConsent() !== null) setConsentGiven(true)
+
+    function onConsentChanged() {
       if (getConsent() !== null) setConsentGiven(true)
     }
-    checkConsent()
 
-    // Poll briefly in case user just answered the banner
-    const interval = setInterval(checkConsent, 500)
-    setTimeout(() => clearInterval(interval), 30000)
+    window.addEventListener('lcf_consent_changed', onConsentChanged)
 
     function onScroll() {
       const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight)
@@ -36,7 +35,7 @@ export default function StickyLeadBar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
-      clearInterval(interval)
+      window.removeEventListener('lcf_consent_changed', onConsentChanged)
     }
   }, [])
 

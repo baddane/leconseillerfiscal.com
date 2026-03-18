@@ -47,23 +47,24 @@ export default function ContactPage() {
         <div className="max-w-4xl mx-auto grid lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2">
             {status === 'success' ? (
-              <div className="border border-green-200 bg-green-50 p-12 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Send className="w-8 h-8 text-green-700" />
+              <div className="border border-gold/30 bg-gold/5 p-12 text-center">
+                <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Send className="w-8 h-8 text-gold" />
                 </div>
-                <h2 className="font-serif text-2xl font-bold mb-4 text-green-900">Message envoyé</h2>
-                <p className="text-green-700 font-sans">
-                  Nous avons bien reçu votre demande et vous répondrons dans les 48 heures ouvrées.
+                <h2 className="font-serif text-2xl font-bold mb-4 text-ink">Message envoyé</h2>
+                <p className="text-ink/70 font-sans">
+                  Nous avons bien reçu votre demande et vous répondrons dans les 48 heures ouvrées. Un email de confirmation vous a été envoyé.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                    <label htmlFor="contact-nom" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                       Nom complet *
                     </label>
                     <input
+                      id="contact-nom"
                       type="text"
                       required
                       value={form.nom}
@@ -73,10 +74,11 @@ export default function ContactPage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                    <label htmlFor="contact-email" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                       Email *
                     </label>
                     <input
+                      id="contact-email"
                       type="email"
                       required
                       value={form.email}
@@ -88,10 +90,11 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                  <label htmlFor="contact-sujet" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                     Sujet
                   </label>
                   <select
+                    id="contact-sujet"
                     value={form.sujet}
                     onChange={(e) => update('sujet', e.target.value)}
                     className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors"
@@ -105,12 +108,14 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                  <label htmlFor="contact-message" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                     Message *
                   </label>
                   <textarea
+                    id="contact-message"
                     required
                     rows={6}
+                    maxLength={5000}
                     value={form.message}
                     onChange={(e) => update('message', e.target.value)}
                     className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors resize-y"

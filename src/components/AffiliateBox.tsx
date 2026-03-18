@@ -30,6 +30,7 @@ export default function AffiliateBox({ partnerId, variant = 'sidebar' }: Affilia
             className="inline-block bg-ink text-paper px-6 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-gold hover:text-ink transition-all"
             rel="nofollow sponsored"
             target="_blank"
+            title={`Lien affilié — ${affiliate.name}`}
           >
             {affiliate.cta} →
           </Link>
@@ -53,6 +54,7 @@ export default function AffiliateBox({ partnerId, variant = 'sidebar' }: Affilia
         className="block text-center bg-ink text-paper py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold hover:text-ink transition-all"
         rel="nofollow sponsored"
         target="_blank"
+        title={`Lien affilié — ${affiliate.name}`}
       >
         {affiliate.cta} →
       </Link>

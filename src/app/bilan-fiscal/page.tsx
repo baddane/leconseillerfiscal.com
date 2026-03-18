@@ -94,24 +94,24 @@ export default function BilanFiscalPage() {
           {/* Form */}
           <div className="lg:col-span-3">
             {status === 'success' ? (
-              <div className="border border-green-200 bg-green-50 p-12 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle className="w-8 h-8 text-green-700" />
+              <div className="border border-gold/30 bg-gold/5 p-12 text-center">
+                <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle className="w-8 h-8 text-gold" />
                 </div>
-                <h2 className="font-serif text-2xl font-bold mb-4 text-green-900">
+                <h2 className="font-serif text-2xl font-bold mb-4 text-ink">
                   Demande bien reçue !
                 </h2>
-                <p className="text-green-700 font-sans mb-6 leading-relaxed">
+                <p className="text-ink/70 font-sans mb-6 leading-relaxed">
                   Nous avons reçu votre demande de bilan fiscal. Notre équipe va analyser
                   votre situation et vous envoyer une réponse personnalisée sous 48 heures ouvrées.
                 </p>
-                <p className="text-sm text-green-600 font-mono">
+                <p className="text-sm text-ink/50 font-mono">
                   En attendant, explorez nos guides par pays →
                 </p>
                 <div className="mt-6 flex justify-center">
                   <Link
                     href="/expatriation"
-                    className="inline-flex items-center gap-2 bg-green-700 text-white px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-green-800 transition-all"
+                    className="inline-flex items-center gap-2 bg-ink text-paper px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold hover:text-ink transition-all"
                   >
                     Explorer les guides <ArrowRight className="w-4 h-4" />
                   </Link>
@@ -121,10 +121,11 @@ export default function BilanFiscalPage() {
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                    <label htmlFor="bilan-nom" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                       Prénom & Nom *
                     </label>
                     <input
+                      id="bilan-nom"
                       type="text"
                       required
                       value={form.nom}
@@ -134,10 +135,11 @@ export default function BilanFiscalPage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                    <label htmlFor="bilan-email" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                       Email *
                     </label>
                     <input
+                      id="bilan-email"
                       type="email"
                       required
                       value={form.email}
@@ -150,11 +152,14 @@ export default function BilanFiscalPage() {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                    <label htmlFor="bilan-telephone" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                       Téléphone (optionnel)
                     </label>
                     <input
+                      id="bilan-telephone"
                       type="tel"
+                      pattern="[\d\s\-+().]{7,20}"
+                      title="Numéro de téléphone valide (7 à 20 caractères)"
                       value={form.telephone}
                       onChange={(e) => update('telephone', e.target.value)}
                       className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors"
@@ -162,10 +167,11 @@ export default function BilanFiscalPage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                    <label htmlFor="bilan-pays" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                       Pays d&apos;intérêt
                     </label>
                     <select
+                      id="bilan-pays"
                       value={form.pays}
                       onChange={(e) => update('pays', e.target.value)}
                       className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors"
@@ -179,10 +185,11 @@ export default function BilanFiscalPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                  <label htmlFor="bilan-situation" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                     Votre situation
                   </label>
                   <select
+                    id="bilan-situation"
                     value={form.situation}
                     onChange={(e) => update('situation', e.target.value)}
                     className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors"
@@ -195,10 +202,11 @@ export default function BilanFiscalPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                  <label htmlFor="bilan-revenus" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                     Revenus annuels (optionnel)
                   </label>
                   <select
+                    id="bilan-revenus"
                     value={form.revenus}
                     onChange={(e) => update('revenus', e.target.value)}
                     className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors"
@@ -211,12 +219,14 @@ export default function BilanFiscalPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
+                  <label htmlFor="bilan-message" className="block font-mono text-xs uppercase tracking-widest text-grey mb-2">
                     Décrivez votre situation *
                   </label>
                   <textarea
+                    id="bilan-message"
                     required
                     rows={5}
+                    maxLength={5000}
                     value={form.message}
                     onChange={(e) => update('message', e.target.value)}
                     className="w-full px-4 py-3 border border-ink/10 bg-white focus:border-gold focus:outline-none font-sans transition-colors resize-y"

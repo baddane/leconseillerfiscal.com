@@ -39,6 +39,10 @@ function saveConsent(analytics: boolean, marketing: boolean) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(consent))
   } catch {}
+  // Notify other components that consent changed
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('lcf_consent_changed', { detail: consent }))
+  }
   return consent
 }
 

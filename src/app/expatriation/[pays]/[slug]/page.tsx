@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getArticleBySlug, getAllSlugsSynced } from '@/lib/articles'
+import { getArticleBySlug, getArticlesByPays, getAllSlugsSynced } from '@/lib/articles'
 import { affiliateDisplay } from '@/lib/affiliates'
 import { countries } from '@/data/countries'
 import AffiliateBox from '@/components/AffiliateBox'
@@ -9,6 +9,7 @@ import { ArticleJsonLd, FaqJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd'
 import Link from 'next/link'
 import { Clock, ShieldCheck, ChevronDown } from 'lucide-react'
 import LeadCaptureBox from '@/components/LeadCaptureBox'
+import RelatedArticles from '@/components/RelatedArticles'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
@@ -55,6 +56,7 @@ export default async function ArticlePage({
 
   if (!article || article.pays !== pays) notFound()
 
+  const relatedArticles = await getArticlesByPays(pays)
   const country = countries.find((c) => c.slug === pays)
   const countryName = country?.name ?? pays.charAt(0).toUpperCase() + pays.slice(1)
   const articleUrl = `${siteUrl}/expatriation/${pays}/${slug}`
@@ -149,6 +151,14 @@ export default async function ArticlePage({
                 </div>
               </section>
             )}
+
+            {/* Related articles */}
+            <RelatedArticles
+              articles={relatedArticles}
+              currentSlug={slug}
+              pays={pays}
+              countryName={countryName}
+            />
 
             {/* Newsletter capture before disclaimer */}
             <LeadCaptureBox pays={countryName} variant="email" />

@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import ExitIntentModal from '@/components/ExitIntentModal'
 import StickyLeadBar from '@/components/StickyLeadBar'
 import CookieBanner from '@/components/CookieBanner'
+import { OrganizationJsonLd } from '@/components/JsonLd'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
@@ -42,6 +43,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: siteUrl,
+    types: {
+      'application/rss+xml': `${siteUrl}/feed.xml`,
+    },
   },
 }
 
@@ -49,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">
+        <OrganizationJsonLd />
         <script
   async
   src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1436679935240248"

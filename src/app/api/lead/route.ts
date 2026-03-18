@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isValidEmail, isValidPhone, sanitizeText, isNonEmpty, isBodyTooLarge } from '@/lib/validation'
+import { getEnvInt } from '@/lib/env'
 
-// Simple in-memory rate limiter
+// Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
@@ -18,19 +20,34 @@ function isRateLimited(ip: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    // Body size check
+    if (isBodyTooLarge(request.headers.get('content-length'))) {
+      return NextResponse.json({ error: 'Corps de requête trop volumineux' }, { status: 413 })
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     if (isRateLimited(ip)) {
       return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 })
     }
 
     const body = await request.json()
-    const { nom, email, telephone, pays, situation, revenus, message, source } = body
+    const nom = sanitizeText(body.nom, 200)
+    const email = body.email
+    const telephone = sanitizeText(body.telephone, 30)
+    const pays = sanitizeText(body.pays, 100)
+    const situation = sanitizeText(body.situation, 200)
+    const revenus = sanitizeText(body.revenus, 100)
+    const message = sanitizeText(body.message, 5000)
+    const source = sanitizeText(body.source, 50) || 'bilan-fiscal'
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
     }
-    if (!nom) {
+    if (!isNonEmpty(nom)) {
       return NextResponse.json({ error: 'Nom requis' }, { status: 400 })
+    }
+    if (!isValidPhone(telephone)) {
+      return NextResponse.json({ error: 'Numéro de téléphone invalide' }, { status: 400 })
     }
 
     const resendKey = process.env.RESEND_API_KEY
@@ -46,7 +63,7 @@ export async function POST(request: NextRequest) {
       `Pays cible: ${pays || 'Non renseigné'}`,
       `Situation : ${situation || 'Non renseigné'}`,
       `Revenus   : ${revenus || 'Non renseigné'}`,
-      `Source    : ${source || 'bilan-fiscal'}`,
+      `Source    : ${source}`,
       ``,
       `Message :`,
       message || '(aucun message)',
@@ -85,11 +102,10 @@ export async function POST(request: NextRequest) {
       const [prenom, ...rest] = nom.trim().split(' ')
       const nomFamille = rest.join(' ')
 
-      const listId = process.env.BREVO_LEADS_LIST_ID
-        ? parseInt(process.env.BREVO_LEADS_LIST_ID)
-        : null
+      const listId = getEnvInt('BREVO_LEADS_LIST_ID')
 
       // Attributs personnalisés — à créer dans Brevo : Contacts → Paramètres → Attributs
+      // Noms attendus : PRENOM, NOM, TELEPHONE, PAYS_CIBLE, SITUATION, REVENUS, SOURCE (type Texte)
       const attributes: Record<string, string> = {
         PRENOM: prenom ?? nom,
         ...(nomFamille && { NOM: nomFamille }),
@@ -97,7 +113,7 @@ export async function POST(request: NextRequest) {
         ...(pays && { PAYS_CIBLE: pays }),
         ...(situation && { SITUATION: situation }),
         ...(revenus && { REVENUS: revenus }),
-        SOURCE: source ?? 'bilan-fiscal',
+        SOURCE: source,
       }
 
       const payload: Record<string, unknown> = {

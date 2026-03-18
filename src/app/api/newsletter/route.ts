@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isValidEmail, isBodyTooLarge } from '@/lib/validation'
+import { getEnvInt } from '@/lib/env'
 
-// Simple in-memory rate limiter
+// Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
 const RATE_LIMIT_MAX = 3
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
@@ -105,7 +107,7 @@ function buildWelcomeEmail(email: string, siteUrl: string): string {
       <!-- Bilan CTA -->
       <div style="background:#0f0e0b;padding:28px 32px;">
         <p style="font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#c9a84c;margin:0 0 12px;">
-          Votre situation est unique
+          Analyse personnalisée
         </p>
         <p style="color:#f5f0e8;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;margin:0 0 20px;">
           Cette checklist est un point de départ. Pour une analyse personnalisée de votre profil fiscal — pays cible, épargne, exit tax, convention — demandez votre bilan gratuit.
@@ -138,6 +140,10 @@ function buildWelcomeEmail(email: string, siteUrl: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    if (isBodyTooLarge(request.headers.get('content-length'))) {
+      return NextResponse.json({ error: 'Corps de requête trop volumineux' }, { status: 413 })
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     if (isRateLimited(ip)) {
       return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 })
@@ -145,7 +151,7 @@ export async function POST(request: NextRequest) {
 
     const { email } = await request.json()
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
     }
 
@@ -161,9 +167,7 @@ export async function POST(request: NextRequest) {
     const HEADERS = { 'api-key': brevoKey, 'Content-Type': 'application/json' }
 
     // ── 1. Ajouter à la liste newsletter ────────────────────────────────────
-    const listId = process.env.BREVO_NEWSLETTER_LIST_ID
-      ? parseInt(process.env.BREVO_NEWSLETTER_LIST_ID)
-      : null
+    const listId = getEnvInt('BREVO_NEWSLETTER_LIST_ID')
 
     const contactPayload: Record<string, unknown> = {
       email,
@@ -190,7 +194,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
         to: [{ email }],
-        subject: '✓ Votre checklist fiscale — 10 étapes avant de quitter la France',
+        subject: 'Votre checklist fiscale — 10 étapes avant de quitter la France',
         htmlContent: buildWelcomeEmail(email, siteUrl),
         tags: ['welcome', 'checklist'],
       }),
