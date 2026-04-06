@@ -23,6 +23,11 @@ const topicHubs: Record<string, { title: string; description: string; emoji: str
     description: 'Guides comparatifs pour choisir les bons outils et services en expatriation.',
     emoji: '⚖️',
   },
+  actualite: {
+    title: 'Actualité Fiscale 2026',
+    description: 'Toute l\'actualité fiscale 2026 pour les expatriés français : loi de finances, déclaration, réformes, nouvelles obligations et opportunités.',
+    emoji: '📰',
+  },
 }
 
 export async function generateStaticParams() {
