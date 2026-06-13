@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = process.env.RESEND_API_KEY
-    const contactEmail = process.env.CONTACT_EMAIL ?? 'contact@leconseillerfiscal.com'
+    const contactEmail = process.env.CONTACT_EMAIL ?? 'r.baddane@gmail.com'
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
     if (!apiKey) {
