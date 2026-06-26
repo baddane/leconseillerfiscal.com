@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isValidEmail, isValidPhone, sanitizeText, isNonEmpty, isBodyTooLarge } from '@/lib/validation'
 import { getEnvInt } from '@/lib/env'
+import { supabase } from '@/lib/supabase'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -68,6 +69,27 @@ export async function POST(request: NextRequest) {
       `Message :`,
       message || '(aucun message)',
     ].join('\n')
+
+    // ── Double écriture (best-effort) : Supabase d'abord, puis email/CRM ───
+    // Le détail fiscal (situation, revenus, message libre) est consolidé
+    // dans la colonne message de lcf_leads.
+    const leadMessage = [
+      situation && `Situation : ${situation}`,
+      revenus && `Revenus : ${revenus}`,
+      message && `Message : ${message}`,
+    ].filter(Boolean).join('\n')
+
+    const { error: dbError } = await supabase.from('lcf_leads').insert({
+      name: nom,
+      email,
+      phone: telephone || null,
+      country: pays || null,
+      source,
+      message: leadMessage || null,
+    })
+    if (dbError) {
+      console.error('[lead] Supabase insert error:', dbError.message)
+    }
 
     if (!resendKey && !brevoKey) {
       console.log(`[lead] ${emailText}`)

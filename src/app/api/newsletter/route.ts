@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isValidEmail, isBodyTooLarge } from '@/lib/validation'
 import { getEnvInt } from '@/lib/env'
+import { supabase } from '@/lib/supabase'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -157,6 +158,15 @@ export async function POST(request: NextRequest) {
 
     const brevoKey = process.env.BREVO_API_KEY
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
+
+    // ── Double écriture (best-effort) : persistance Supabase comme lead ────
+    const { error: dbError } = await supabase.from('lcf_leads').insert({
+      email,
+      source: 'newsletter',
+    })
+    if (dbError) {
+      console.error('[newsletter] Supabase insert error:', dbError.message)
+    }
 
     if (!brevoKey) {
       console.log(`[newsletter] New subscriber (dev): ${email}`)
