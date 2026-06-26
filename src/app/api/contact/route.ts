@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isValidEmail, sanitizeText, isNonEmpty, isBodyTooLarge } from '@/lib/validation'
+import { supabase } from '@/lib/supabase'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -45,36 +46,60 @@ export async function POST(request: NextRequest) {
     const contactEmail = process.env.CONTACT_EMAIL ?? 'contact@leconseillerfiscal.com'
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
 
-    if (!apiKey) {
-      // Dev mode: log to console
-      console.log(`[contact] From: ${nom} <${email}> | Sujet: ${sujet} | Message: ${message.substring(0, 200)}`)
-      return NextResponse.json({ ok: true })
+    // ── Double écriture (best-effort) : Supabase + notification email ──────
+    // Succès si AU MOINS l'un des deux canaux aboutit.
+    let supabaseOk = false
+    let emailOk = false
+
+    // ── 1. Persistance Supabase (lcf_contact_messages) ─────────────────────
+    const { error: dbError } = await supabase.from('lcf_contact_messages').insert({
+      name: nom,
+      email,
+      subject: sujet,
+      message,
+    })
+    if (dbError) {
+      console.error('[contact] Supabase insert error:', dbError.message)
+    } else {
+      supabaseOk = true
     }
 
-    // ── 1. Notification interne ────────────────────────────────────────────
-    const internalRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
-        to: contactEmail,
-        reply_to: email,
-        subject: `[Contact] ${sujet} — ${nom}`,
-        text: `Nom: ${nom}\nEmail: ${email}\nSujet: ${sujet}\n\n${message}`,
-      }),
-    })
+    // ── 2. Notification interne (Resend) ───────────────────────────────────
+    if (!apiKey) {
+      // Pas de clé email : on s'appuie sur Supabase (et on logue en dev)
+      console.log(`[contact] From: ${nom} <${email}> | Sujet: ${sujet} | Message: ${message.substring(0, 200)}`)
+    } else {
+      const internalRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
+          to: contactEmail,
+          reply_to: email,
+          subject: `[Contact] ${sujet} — ${nom}`,
+          text: `Nom: ${nom}\nEmail: ${email}\nSujet: ${sujet}\n\n${message}`,
+        }),
+      }).catch((err) => {
+        console.error('[contact] Resend error:', err)
+        return null
+      })
+      emailOk = !!internalRes && internalRes.ok
+      if (internalRes && !internalRes.ok) {
+        console.error('[contact] Resend error:', await internalRes.text())
+      }
+    }
 
-    if (!internalRes.ok) {
-      const err = await internalRes.text()
-      console.error('[contact] Resend error:', err)
+    // Échec uniquement si les DEUX canaux ont échoué
+    if (!supabaseOk && !emailOk && apiKey) {
       return NextResponse.json({ error: 'Erreur d\'envoi' }, { status: 500 })
     }
 
-    // ── 2. Email de confirmation à l'utilisateur ───────────────────────────
-    await fetch('https://api.resend.com/emails', {
+    // ── 3. Email de confirmation à l'utilisateur (best-effort) ─────────────
+    if (apiKey) {
+      await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -95,7 +120,8 @@ export async function POST(request: NextRequest) {
           `${siteUrl}`,
         ].join('\n'),
       }),
-    }).catch((err) => console.error('[contact] Confirmation email error:', err))
+      }).catch((err) => console.error('[contact] Confirmation email error:', err))
+    }
 
     return NextResponse.json({ ok: true })
   } catch (err) {
