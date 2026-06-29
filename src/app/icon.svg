@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Le Conseiller Fiscal">
+  <!-- Fond encre, tuile arrondie -->
+  <rect width="512" height="512" rx="112" fill="#0f0e0b"/>
+  <!-- Anneau "sceau / pièce d'or" évoquant l'autorité fiscale -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#c9a84c" stroke-width="6" opacity="0.35"/>
+  <!-- Monogramme C (Conseiller), or, terminaisons arrondies -->
+  <path d="M 331.8 165.6 A 118 118 0 1 0 331.8 346.4" fill="none" stroke="#c9a84c" stroke-width="54" stroke-linecap="round"/>
+</svg>
