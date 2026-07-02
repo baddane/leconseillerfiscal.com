@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Mail, ArrowRight } from 'lucide-react'
+import { Download, ArrowRight } from 'lucide-react'
 
 interface Props {
   pays?: string
@@ -57,13 +57,13 @@ export default function LeadCaptureBox({ pays, variant = 'email' }: Props) {
     <div className="my-10 bg-ink text-paper p-8">
       <div className="max-w-xl">
         <div className="font-mono text-xs uppercase tracking-widest text-gold mb-3">
-          Restez informé
+          Checklist gratuite · PDF
         </div>
         <h3 className="font-serif text-2xl font-bold mb-2 leading-tight">
-          Recevez nos analyses{pays ? ` sur la fiscalité ${pays}` : ' exclusives'}.
+          Recevez la checklist : 10 étapes fiscales avant de quitter la France.
         </h3>
         <p className="text-paper/60 text-sm font-sans mb-5">
-          Rejoignez nos abonnés et soyez notifié en priorité des évolutions fiscales.
+          Entrez votre e-mail et téléchargez le PDF immédiatement{pays ? ` avant votre expatriation ${pays}` : ''}. Vous recevez aussi nos analyses pour ne rien manquer.
         </p>
 
         {status === 'success' ? (
@@ -95,8 +95,8 @@ export default function LeadCaptureBox({ pays, variant = 'email' }: Props) {
               disabled={status === 'loading'}
               className="bg-gold text-ink px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold/80 transition-all flex items-center justify-center gap-2 disabled:opacity-60 font-bold whitespace-nowrap"
             >
-              <Mail className="w-4 h-4" />
-              {status === 'loading' ? 'Envoi...' : "S'abonner"}
+              <Download className="w-4 h-4" />
+              {status === 'loading' ? 'Envoi...' : 'Recevoir le PDF gratuit'}
             </button>
           </form>
         )}
