@@ -142,6 +142,43 @@ function buildWelcomeEmail(email: string, siteUrl: string): string {
 </html>`
 }
 
+// Version texte brut (multipart) : améliore le classement en boîte principale
+// et réduit le score spam par rapport à un e-mail 100% HTML.
+function buildWelcomeText(siteUrl: string): string {
+  const pdfUrl = `${siteUrl}${CHECKLIST_PDF_PATH}`
+  const bilanUrl = `${siteUrl}/bilan-fiscal`
+  return [
+    'Le Conseiller Fiscal',
+    '',
+    'Votre checklist fiscale est prête.',
+    '',
+    'Merci de rejoindre la communauté du Conseiller Fiscal. Comme promis, voici',
+    'votre checklist « 10 étapes fiscales obligatoires avant de quitter la France ».',
+    '',
+    'Telecharger le PDF : ' + pdfUrl,
+    '(Le PDF est aussi joint a cet e-mail.)',
+    '',
+    'Les 10 etapes :',
+    '01. Verifier votre domicile fiscal actuel',
+    '02. Identifier la convention fiscale applicable',
+    "03. Evaluer votre exposition a l'exit tax",
+    '04. Securiser votre date de depart fiscale',
+    '05. Deposer votre declaration de depart',
+    '06. Organiser vos revenus francais residuels',
+    "07. Anticiper la fiscalite de votre epargne",
+    '08. Preparer votre couverture sociale',
+    "09. Ouvrir vos comptes a l'etranger",
+    '10. Consulter un fiscaliste avant le depart',
+    '',
+    'Pour une analyse personnalisee de votre situation, demandez votre bilan',
+    'fiscal gratuit : ' + bilanUrl,
+    '',
+    '---',
+    siteUrl.replace(/^https?:\/\//, ''),
+    "Vous recevez cet e-mail car vous vous etes inscrit sur notre site.",
+  ].join('\n')
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (isBodyTooLarge(request.headers.get('content-length'))) {
@@ -216,6 +253,7 @@ export async function POST(request: NextRequest) {
           to: [{ email }],
           subject: 'Votre checklist fiscale — 10 étapes avant de quitter la France',
           htmlContent: buildWelcomeEmail(email, siteUrl),
+        textContent: buildWelcomeText(siteUrl),
           // PDF joint (Brevo récupère le fichier depuis l'URL publique)
           attachment: [
             { url: `${siteUrl}${CHECKLIST_PDF_PATH}`, name: 'checklist-fiscale-expatrie.pdf' },
