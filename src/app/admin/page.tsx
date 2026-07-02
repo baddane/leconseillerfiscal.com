@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Lock, LogOut, RefreshCw, Trash2, Mail, MailOpen, Inbox, Users,
-  KeyRound, AlertCircle, Phone, MapPin,
+  KeyRound, AlertCircle, Phone, MapPin, Send, Check,
 } from 'lucide-react'
 import { supabase, type LcfContactMessage, type LcfLead } from '@/lib/supabase'
 
 const PW_KEY = 'lcf_admin_pw'
-type Tab = 'contacts' | 'leads'
+type Tab = 'contacts' | 'leads' | 'newsletter'
 interface AdminData {
   contacts: LcfContactMessage[]
   leads: LcfLead[]
@@ -186,6 +186,10 @@ export default function AdminPage() {
             active={tab === 'leads'} onClick={() => setTab('leads')}
             icon={<Users className="w-4 h-4" />} label="Leads" badge={unreadLeads}
           />
+          <TabButton
+            active={tab === 'newsletter'} onClick={() => setTab('newsletter')}
+            icon={<Send className="w-4 h-4" />} label="Newsletter" badge={0}
+          />
         </div>
 
         {error && (
@@ -194,7 +198,9 @@ export default function AdminPage() {
           </p>
         )}
 
-        {rows.length === 0 ? (
+        {tab === 'newsletter' ? (
+          <NewsletterPanel getPw={currentPw} />
+        ) : rows.length === 0 ? (
           <div className="text-center py-24 text-grey font-sans">
             <Inbox className="w-10 h-10 mx-auto mb-4 opacity-30" />
             Aucun enregistrement pour le moment.
@@ -219,7 +225,7 @@ export default function AdminPage() {
           </ul>
         )}
 
-        <ChangePasswordSection getPw={currentPw} />
+        {tab !== 'newsletter' && <ChangePasswordSection getPw={currentPw} />}
       </div>
     </div>
   )
@@ -388,6 +394,137 @@ function ChangePasswordSection({ getPw }: { getPw: () => string }) {
           </button>
         </form>
       )}
+    </div>
+  )
+}
+
+// ── Panneau Newsletter ─────────────────────────────────────────────────────
+interface NewsletterArticle { slug: string; title: string; pays: string }
+
+function NewsletterPanel({ getPw }: { getPw: () => string }) {
+  const [articles, setArticles] = useState<NewsletterArticle[]>([])
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [testEmail, setTestEmail] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState<'test' | 'send' | null>(null)
+  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      setLoading(true)
+      try {
+        const res = await fetch('/api/admin/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: getPw(), action: 'list' }),
+        })
+        const data = await res.json()
+        if (!alive) return
+        if (res.ok) setArticles(data.articles || [])
+        else setMsg({ type: 'err', text: data.error || 'Erreur de chargement' })
+      } catch {
+        if (alive) setMsg({ type: 'err', text: 'Erreur réseau' })
+      }
+      if (alive) setLoading(false)
+    })()
+    return () => { alive = false }
+  }, [getPw])
+
+  function toggle(slug: string) {
+    setSelected((s) => {
+      const n = new Set(s)
+      if (n.has(slug)) n.delete(slug)
+      else n.add(slug)
+      return n
+    })
+  }
+
+  async function call(action: 'test' | 'send') {
+    setMsg(null)
+    if (selected.size === 0) { setMsg({ type: 'err', text: 'Sélectionnez au moins un article.' }); return }
+    if (action === 'test' && !testEmail) { setMsg({ type: 'err', text: 'Renseignez une adresse de test.' }); return }
+    if (action === 'send' && !confirm('Envoyer la newsletter à TOUTE la liste d’abonnés ?')) return
+    setBusy(action)
+    try {
+      const res = await fetch('/api/admin/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: getPw(), action, slugs: [...selected], testEmail }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setMsg({ type: 'ok', text: action === 'test' ? `Test envoyé à ${data.to}. Vérifiez votre boîte (et les spams).` : 'Newsletter envoyée à toute la liste ✓' })
+      } else {
+        setMsg({ type: 'err', text: data.error || 'Erreur lors de l’envoi' })
+      }
+    } catch {
+      setMsg({ type: 'err', text: 'Erreur réseau' })
+    }
+    setBusy(null)
+  }
+
+  return (
+    <div className="max-w-3xl">
+      <p className="font-mono text-[11px] uppercase tracking-widest text-gold mb-2">Newsletter</p>
+      <h2 className="font-serif text-2xl font-bold mb-2 text-ink">Envoyer une newsletter</h2>
+      <p className="text-grey font-sans text-sm mb-6">
+        Sélectionnez le ou les articles à mettre en avant. Les dernières actualités fiscales sont
+        ajoutées automatiquement en « à ne pas manquer ». Faites un test avant d’envoyer à toute la liste.
+      </p>
+
+      {msg && (
+        <p className={`flex items-center gap-2 text-sm font-sans mb-4 ${msg.type === 'ok' ? 'text-gold' : 'text-red'}`}>
+          <AlertCircle className="w-4 h-4 shrink-0" /> {msg.text}
+        </p>
+      )}
+
+      <div className="border border-border bg-white mb-6">
+        <div className="px-4 py-2 border-b border-border font-mono text-[11px] uppercase tracking-wider text-grey">
+          Articles — {selected.size} sélectionné{selected.size > 1 ? 's' : ''}
+        </div>
+        {loading ? (
+          <div className="p-6 text-grey text-sm font-sans">Chargement…</div>
+        ) : (
+          <ul className="max-h-80 overflow-y-auto divide-y divide-border">
+            {articles.map((a) => (
+              <li key={a.slug}>
+                <button
+                  onClick={() => toggle(a.slug)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-paper transition-colors"
+                >
+                  <span className={`w-4 h-4 border flex items-center justify-center shrink-0 ${selected.has(a.slug) ? 'bg-gold border-gold' : 'border-border'}`}>
+                    {selected.has(a.slug) && <Check className="w-3 h-3 text-ink" />}
+                  </span>
+                  <span className="flex-1 font-sans text-sm text-ink truncate">{a.title}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-grey shrink-0">{a.pays}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <input
+          type="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)}
+          placeholder="votre@email.com (test)"
+          className="flex-1 border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-gold"
+        />
+        <button
+          onClick={() => call('test')} disabled={busy !== null}
+          className="flex items-center justify-center gap-2 border border-ink px-5 py-3 font-mono text-[11px] uppercase tracking-wider hover:bg-ink hover:text-paper transition-colors disabled:opacity-50"
+        >
+          <Mail className="w-4 h-4" /> {busy === 'test' ? 'Envoi…' : 'Envoyer un test'}
+        </button>
+      </div>
+
+      <button
+        onClick={() => call('send')} disabled={busy !== null || selected.size === 0}
+        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gold text-ink px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50"
+      >
+        <Send className="w-4 h-4" /> {busy === 'send' ? 'Envoi…' : 'Envoyer à toute la liste'}
+      </button>
     </div>
   )
 }
