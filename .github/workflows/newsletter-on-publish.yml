@@ -1,0 +1,61 @@
+name: Newsletter à la publication
+
+# Se déclenche à chaque push sur main qui AJOUTE un article,
+# et peut aussi être lancé manuellement (mode test par défaut).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/articles/**'
+  workflow_dispatch:
+    inputs:
+      slugs:
+        description: 'Slugs à inclure (séparés par des espaces). Vide = rien.'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Mode test sans envoi'
+        type: boolean
+        default: true
+
+jobs:
+  newsletter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (historique complet pour dater les articles)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Détecter les nouveaux articles
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SLUGS="${{ github.event.inputs.slugs }}"
+          else
+            BEFORE="${{ github.event.before }}"
+            if ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+              BEFORE="$(git rev-parse HEAD~1 2>/dev/null || echo '')"
+            fi
+            if [ -n "$BEFORE" ]; then
+              SLUGS="$(git diff --diff-filter=A --name-only "$BEFORE" "${{ github.sha }}" -- content/articles/ | tr '\n' ' ')"
+            else
+              SLUGS="$(git show --diff-filter=A --name-only --format='' "${{ github.sha }}" -- content/articles/ | tr '\n' ' ')"
+            fi
+          fi
+          echo "Nouveaux articles: $SLUGS"
+          echo "slugs=$SLUGS" >> "$GITHUB_OUTPUT"
+
+      - name: Envoyer la newsletter
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_NEWSLETTER_LIST_ID: ${{ secrets.BREVO_NEWSLETTER_LIST_ID }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://www.leconseillerfiscal.com' }}
+          NEW_ARTICLE_SLUGS: ${{ steps.detect.outputs.slugs }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: node scripts/send-newsletter.js
