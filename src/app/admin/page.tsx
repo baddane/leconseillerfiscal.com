@@ -100,10 +100,10 @@ export default function AdminPage() {
     setBusyId(null)
   }
 
+  // « Leads » = TOUS les leads (newsletter + bilan) ; « Bilan fiscal » = sous-ensemble
   const bilanLeads = useMemo(() => data.leads.filter((l) => l.source === 'bilan-fiscal'), [data.leads])
-  const otherLeads = useMemo(() => data.leads.filter((l) => l.source !== 'bilan-fiscal'), [data.leads])
   const unreadContacts = useMemo(() => data.contacts.filter((c) => !c.is_read).length, [data.contacts])
-  const unreadLeads = useMemo(() => otherLeads.filter((l) => !l.is_read).length, [otherLeads])
+  const unreadLeads = useMemo(() => data.leads.filter((l) => !l.is_read).length, [data.leads])
   const unreadBilan = useMemo(() => bilanLeads.filter((l) => !l.is_read).length, [bilanLeads])
 
   // ── Écran de connexion ────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ export default function AdminPage() {
   }
 
   // ── Tableau de bord ───────────────────────────────────────────────────────
-  const leadRows = tab === 'bilan' ? bilanLeads : otherLeads
+  const leadRows = tab === 'bilan' ? bilanLeads : data.leads
   const rows = tab === 'contacts' ? data.contacts : leadRows
 
   return (
