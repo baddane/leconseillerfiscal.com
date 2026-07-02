@@ -188,39 +188,46 @@ export async function POST(request: NextRequest) {
     }
     if (listId) contactPayload.listIds = [listId]
 
-    const contactRes = await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: HEADERS,
-      body: JSON.stringify(contactPayload),
-    })
-
-    if (!contactRes.ok && contactRes.status !== 204) {
-      const err = await contactRes.text()
-      console.error('[newsletter] Brevo contact error:', err)
-      return NextResponse.json({ error: 'Erreur inscription' }, { status: 500 })
+    // ── Brevo best-effort : ne JAMAIS faire échouer l'inscription ───────────
+    // Le lead est déjà enregistré dans Supabase et le PDF est téléchargeable
+    // immédiatement côté client. Toute erreur Brevo (ex. restriction d'IP
+    // autorisées, domaine non authentifié) est loguée mais non bloquante :
+    // l'utilisateur voit toujours l'état "succès" et son bouton de téléchargement.
+    try {
+      const contactRes = await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: HEADERS,
+        body: JSON.stringify(contactPayload),
+      })
+      if (!contactRes.ok && contactRes.status !== 204) {
+        console.error('[newsletter] Brevo contact error:', await contactRes.text())
+      }
+    } catch (e) {
+      console.error('[newsletter] Brevo contact exception:', e)
     }
 
-    // ── 2. Envoyer l'email de bienvenue + checklist ──────────────────────────
-    const emailRes = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: HEADERS,
-      body: JSON.stringify({
-        sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
-        to: [{ email }],
-        subject: 'Votre checklist fiscale — 10 étapes avant de quitter la France',
-        htmlContent: buildWelcomeEmail(email, siteUrl),
-        // PDF joint (Brevo récupère le fichier depuis l'URL publique)
-        attachment: [
-          { url: `${siteUrl}${CHECKLIST_PDF_PATH}`, name: 'checklist-fiscale-expatrie.pdf' },
-        ],
-        tags: ['welcome', 'checklist'],
-      }),
-    })
-
-    if (!emailRes.ok) {
-      const err = await emailRes.text()
-      console.error('[newsletter] Brevo email error:', err)
-      // Non-bloquant : l'inscription est confirmée même si l'email échoue
+    // ── 2. Envoyer l'email de bienvenue + checklist (best-effort) ────────────
+    try {
+      const emailRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: HEADERS,
+        body: JSON.stringify({
+          sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+          to: [{ email }],
+          subject: 'Votre checklist fiscale — 10 étapes avant de quitter la France',
+          htmlContent: buildWelcomeEmail(email, siteUrl),
+          // PDF joint (Brevo récupère le fichier depuis l'URL publique)
+          attachment: [
+            { url: `${siteUrl}${CHECKLIST_PDF_PATH}`, name: 'checklist-fiscale-expatrie.pdf' },
+          ],
+          tags: ['welcome', 'checklist'],
+        }),
+      })
+      if (!emailRes.ok) {
+        console.error('[newsletter] Brevo email error:', await emailRes.text())
+      }
+    } catch (e) {
+      console.error('[newsletter] Brevo email exception:', e)
     }
 
     return NextResponse.json({ ok: true })
