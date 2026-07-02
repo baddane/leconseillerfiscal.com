@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from "next/script"
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -54,11 +53,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">
         <OrganizationJsonLd />
-        <script
-  async
-  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1436679935240248"
-  crossOrigin="anonymous"
-></script>
         <Navbar />
         <main>{children}</main>
         <Footer />
