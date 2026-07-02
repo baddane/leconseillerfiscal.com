@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { CheckSquare, ArrowLeft } from 'lucide-react'
+import { CheckSquare, ArrowLeft, Download } from 'lucide-react'
 import PrintButton from './PrintButton'
 
 export const metadata: Metadata = {
@@ -132,7 +132,17 @@ export default function ChecklistPage() {
             <ArrowLeft className="w-4 h-4" />
             Retour au site
           </Link>
-          <PrintButton />
+          <div className="flex items-center gap-3">
+            <a
+              href="/checklist-fiscale-expatrie.pdf"
+              download
+              className="flex items-center gap-2 bg-ink text-paper px-5 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-ink/80 transition-all font-bold"
+            >
+              <Download className="w-4 h-4" />
+              Télécharger le PDF
+            </a>
+            <PrintButton />
+          </div>
         </div>
       </div>
 

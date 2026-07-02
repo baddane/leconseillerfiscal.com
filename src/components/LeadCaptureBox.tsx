@@ -67,8 +67,18 @@ export default function LeadCaptureBox({ pays, variant = 'email' }: Props) {
         </p>
 
         {status === 'success' ? (
-          <div className="flex items-center gap-2 text-gold font-mono text-sm">
-            <span>✓</span> Inscription confirmée — bienvenue !
+          <div>
+            <div className="flex items-center gap-2 text-gold font-mono text-sm mb-4">
+              <span>✓</span> Inscription confirmée — votre checklist est prête.
+            </div>
+            <a
+              href="/checklist-fiscale-expatrie.pdf"
+              download
+              className="inline-flex items-center gap-2 bg-gold text-ink px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold/80 transition-all font-bold"
+            >
+              ⬇ Télécharger la checklist (PDF)
+            </a>
+            <p className="mt-3 text-paper/50 font-mono text-[11px]">Nous vous l&apos;avons aussi envoyée par e-mail.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">

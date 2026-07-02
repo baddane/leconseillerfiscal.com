@@ -103,9 +103,16 @@ export default function ExitIntentModal() {
           {status === 'success' ? (
             <div className="bg-gold/10 border border-gold/20 p-6 text-center">
               <div className="text-2xl mb-2">✓</div>
-              <p className="font-serif font-bold text-ink mb-1">Parfait, c&apos;est parti !</p>
-              <p className="text-sm text-ink/60 font-sans">
-                Vous recevrez la checklist dans votre boîte mail sous peu.
+              <p className="font-serif font-bold text-ink mb-3">Parfait, votre checklist est prête !</p>
+              <a
+                href="/checklist-fiscale-expatrie.pdf"
+                download
+                className="inline-flex items-center gap-2 bg-gold text-ink px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold/80 transition-all font-bold"
+              >
+                ⬇ Télécharger la checklist (PDF)
+              </a>
+              <p className="text-xs text-ink/50 font-sans mt-3">
+                Nous vous l&apos;avons aussi envoyée par e-mail.
               </p>
             </div>
           ) : (

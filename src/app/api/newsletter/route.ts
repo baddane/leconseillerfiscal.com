@@ -19,7 +19,10 @@ function isRateLimited(ip: string): boolean {
   return entry.count > RATE_LIMIT_MAX
 }
 
+const CHECKLIST_PDF_PATH = '/checklist-fiscale-expatrie.pdf'
+
 function buildWelcomeEmail(email: string, siteUrl: string): string {
+  const pdfUrl = `${siteUrl}${CHECKLIST_PDF_PATH}`
   const checklistUrl = `${siteUrl}/ressources/checklist-fiscale-expatrie`
   const bilanUrl = `${siteUrl}/bilan-fiscal`
 
@@ -60,14 +63,14 @@ function buildWelcomeEmail(email: string, siteUrl: string): string {
         Comme promis, voici votre checklist <strong style="color:#0f0e0b;">10 étapes fiscales obligatoires avant de quitter la France</strong> — un guide pratique pour sécuriser votre départ sans mauvaises surprises.
       </p>
 
-      <!-- CTA principal -->
+      <!-- CTA principal : téléchargement direct du PDF -->
       <div style="text-align:center;margin:0 0 40px;">
-        <a href="${checklistUrl}"
+        <a href="${pdfUrl}" download
            style="display:inline-block;background:#c9a84c;color:#0f0e0b;padding:16px 36px;font-family:monospace;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;text-decoration:none;">
-          Accéder à la checklist →
+          ⬇ Télécharger votre checklist (PDF)
         </a>
         <p style="margin:12px 0 0;font-family:monospace;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.1em;">
-          Ouvrir dans votre navigateur · Imprimer en PDF
+          Le PDF est également joint à cet e-mail · <a href="${checklistUrl}" style="color:#999;">version en ligne</a>
         </p>
       </div>
 
@@ -206,6 +209,10 @@ export async function POST(request: NextRequest) {
         to: [{ email }],
         subject: 'Votre checklist fiscale — 10 étapes avant de quitter la France',
         htmlContent: buildWelcomeEmail(email, siteUrl),
+        // PDF joint (Brevo récupère le fichier depuis l'URL publique)
+        attachment: [
+          { url: `${siteUrl}${CHECKLIST_PDF_PATH}`, name: 'checklist-fiscale-expatrie.pdf' },
+        ],
         tags: ['welcome', 'checklist'],
       }),
     })

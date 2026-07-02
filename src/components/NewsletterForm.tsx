@@ -44,8 +44,16 @@ export default function NewsletterForm() {
             </p>
 
             {status === 'success' ? (
-              <div className="bg-ink text-paper px-8 py-4 font-mono text-sm">
-                ✓ Inscription confirmée — bienvenue !
+              <div className="bg-ink text-paper px-8 py-6">
+                <div className="font-mono text-sm mb-4">✓ Inscription confirmée — votre checklist est prête.</div>
+                <a
+                  href="/checklist-fiscale-expatrie.pdf"
+                  download
+                  className="inline-flex items-center gap-2 bg-gold text-ink px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-gold/80 transition-all font-bold"
+                >
+                  ⬇ Télécharger la checklist (PDF)
+                </a>
+                <p className="mt-3 text-paper/60 font-mono text-[11px]">Nous vous l&apos;avons aussi envoyée par e-mail.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
