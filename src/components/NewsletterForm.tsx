@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState('')
@@ -34,13 +34,16 @@ export default function NewsletterForm() {
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1">
             <div className="font-mono text-xs uppercase tracking-widest mb-4 opacity-60">
-              Newsletter gratuite
+              Ressource gratuite · PDF
             </div>
             <h2 className="font-serif text-4xl md:text-5xl font-black mb-6 leading-tight">
-              Restez informé des évolutions fiscales.
+              Recevez gratuitement la checklist fiscale de l&apos;expatrié.
             </h2>
-            <p className="text-ink/70 text-lg mb-8">
-              Rejoignez des milliers d&apos;expatriés et recevez nos analyses exclusives directement dans votre boîte mail.
+            <p className="text-ink/70 text-lg mb-6">
+              <strong>10 étapes fiscales obligatoires avant de quitter la France</strong> — domicile fiscal, exit tax, épargne, protection sociale. Entrez votre e-mail : vous recevez le PDF immédiatement.
+            </p>
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-ink/60 font-mono text-xs uppercase tracking-wider mb-8">
+              <span>✓ Envoi immédiat</span><span>✓ 100% gratuit</span><span>✓ Sans spam</span>
             </p>
 
             {status === 'success' ? (
@@ -71,7 +74,7 @@ export default function NewsletterForm() {
                   className="bg-ink text-paper px-8 py-4 font-mono text-xs tracking-widest uppercase hover:bg-ink/80 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {status === 'loading' ? 'Envoi...' : (
-                    <><Mail className="w-4 h-4" /> S&apos;abonner</>
+                    <><Download className="w-4 h-4" /> Recevoir le PDF gratuit</>
                   )}
                 </button>
               </form>
@@ -84,7 +87,7 @@ export default function NewsletterForm() {
             )}
           </div>
           <div className="hidden lg:flex items-center justify-center w-48 h-48 opacity-10">
-            <Mail className="w-32 h-32" />
+            <FileText className="w-32 h-32" />
           </div>
         </div>
       </div>
