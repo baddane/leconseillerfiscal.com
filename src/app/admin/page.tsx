@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Lock, LogOut, RefreshCw, Trash2, Mail, MailOpen, Inbox, Users,
-  KeyRound, AlertCircle, Phone, MapPin, Send, Check,
+  KeyRound, AlertCircle, Phone, MapPin, Send, Check, ClipboardList,
 } from 'lucide-react'
 import { supabase, type LcfContactMessage, type LcfLead } from '@/lib/supabase'
 
 const PW_KEY = 'lcf_admin_pw'
-type Tab = 'contacts' | 'leads' | 'newsletter'
+type Tab = 'contacts' | 'leads' | 'bilan' | 'newsletter'
 interface AdminData {
   contacts: LcfContactMessage[]
   leads: LcfLead[]
@@ -100,8 +100,11 @@ export default function AdminPage() {
     setBusyId(null)
   }
 
+  const bilanLeads = useMemo(() => data.leads.filter((l) => l.source === 'bilan-fiscal'), [data.leads])
+  const otherLeads = useMemo(() => data.leads.filter((l) => l.source !== 'bilan-fiscal'), [data.leads])
   const unreadContacts = useMemo(() => data.contacts.filter((c) => !c.is_read).length, [data.contacts])
-  const unreadLeads = useMemo(() => data.leads.filter((l) => !l.is_read).length, [data.leads])
+  const unreadLeads = useMemo(() => otherLeads.filter((l) => !l.is_read).length, [otherLeads])
+  const unreadBilan = useMemo(() => bilanLeads.filter((l) => !l.is_read).length, [bilanLeads])
 
   // ── Écran de connexion ────────────────────────────────────────────────────
   if (!authed) {
@@ -147,7 +150,8 @@ export default function AdminPage() {
   }
 
   // ── Tableau de bord ───────────────────────────────────────────────────────
-  const rows = tab === 'contacts' ? data.contacts : data.leads
+  const leadRows = tab === 'bilan' ? bilanLeads : otherLeads
+  const rows = tab === 'contacts' ? data.contacts : leadRows
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -187,6 +191,10 @@ export default function AdminPage() {
             icon={<Users className="w-4 h-4" />} label="Leads" badge={unreadLeads}
           />
           <TabButton
+            active={tab === 'bilan'} onClick={() => setTab('bilan')}
+            icon={<ClipboardList className="w-4 h-4" />} label="Bilan fiscal" badge={unreadBilan}
+          />
+          <TabButton
             active={tab === 'newsletter'} onClick={() => setTab('newsletter')}
             icon={<Send className="w-4 h-4" />} label="Newsletter" badge={0}
           />
@@ -203,7 +211,11 @@ export default function AdminPage() {
         ) : rows.length === 0 ? (
           <div className="text-center py-24 text-grey font-sans">
             <Inbox className="w-10 h-10 mx-auto mb-4 opacity-30" />
-            Aucun enregistrement pour le moment.
+            {tab === 'bilan'
+              ? 'Aucune demande de bilan fiscal pour le moment.'
+              : tab === 'leads'
+              ? 'Aucun lead pour le moment.'
+              : 'Aucun message pour le moment.'}
           </div>
         ) : (
           <ul className="flex flex-col gap-3">
