@@ -115,3 +115,35 @@ export function getAllSlugsSynced(): { pays: string; slug: string }[] {
 export function getAllPaysListSynced(): string[] {
   return [...new Set(getAllSlugsSynced().map((s) => s.pays))]
 }
+
+export interface ArticleMeta {
+  slug: string
+  title: string
+  pays: string
+  dateVerification: string
+  metaDescription: string
+}
+
+// Frontmatter seul (rapide, sans conversion markdown) — pour lister/choisir
+// les articles côté admin et construire la newsletter.
+export function getAllArticleMetaSynced(): ArticleMeta[] {
+  try {
+    return fs
+      .readdirSync(articlesDirectory)
+      .filter((name) => name.endsWith('.mdx'))
+      .map((name) => {
+        const slug = name.replace(/\.mdx$/, '')
+        const { data } = matter(fs.readFileSync(path.join(articlesDirectory, name), 'utf8'))
+        const d = data as ArticleFrontmatter
+        return {
+          slug,
+          title: d.title ?? slug,
+          pays: d.pays ?? 'outils',
+          dateVerification: d.dateVerification ?? '',
+          metaDescription: d.metaDescription ?? '',
+        }
+      })
+  } catch {
+    return []
+  }
+}
