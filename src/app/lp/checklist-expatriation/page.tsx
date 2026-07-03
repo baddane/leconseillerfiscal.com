@@ -38,7 +38,7 @@ const faqs = [
 
 export default function LandingPage() {
   return (
-    <div className="bg-paper text-ink">
+    <div className="bg-paper text-ink overflow-x-hidden">
       {/* Barre logo (sans navigation) */}
       <header className="px-6 py-5 border-b border-ink/5">
         <div className="max-w-6xl mx-auto flex items-center gap-3">
@@ -58,7 +58,7 @@ export default function LandingPage() {
             <span className="inline-block font-mono text-xs font-bold tracking-widest uppercase text-gold mb-5">
               Ressource gratuite · PDF
             </span>
-            <h1 className="font-serif text-4xl md:text-6xl font-black leading-[1.05] mb-6">
+            <h1 className="font-serif text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl sm:leading-[1.05] font-black mb-6 break-words">
               Quittez la France <span className="italic text-gold">sans</span> erreur fiscale.
             </h1>
             <p className="text-lg text-ink/70 leading-relaxed mb-8 max-w-xl">
@@ -78,14 +78,14 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="order-first lg:order-last">
+          <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/checklist-cover.png"
               alt="Couverture de la checklist fiscale — 10 étapes avant de quitter la France"
               width={680}
               height={858}
-              className="w-full max-w-md mx-auto shadow-2xl"
+              className="w-52 sm:w-64 lg:w-full lg:max-w-md mx-auto shadow-2xl"
             />
           </div>
         </div>
