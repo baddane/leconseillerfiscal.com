@@ -1,10 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import ExitIntentModal from '@/components/ExitIntentModal'
-import StickyLeadBar from '@/components/StickyLeadBar'
-import CookieBanner from '@/components/CookieBanner'
+import SiteFrame from '@/components/SiteFrame'
 import { OrganizationJsonLd } from '@/components/JsonLd'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
@@ -53,12 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">
         <OrganizationJsonLd />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <CookieBanner />
-        <ExitIntentModal />
-        <StickyLeadBar />
+        <SiteFrame>{children}</SiteFrame>
       </body>
     </html>
   )
