@@ -3,12 +3,13 @@
 import { usePathname } from 'next/navigation'
 import Navbar from './Navbar'
 import Footer from './Footer'
-import CookieBanner from './CookieBanner'
 import ExitIntentModal from './ExitIntentModal'
 import StickyLeadBar from './StickyLeadBar'
 
-// Masque le chrome du site (menu, footer, pop-ups) sur les landing pages /lp/*
-// afin d'obtenir une page de conversion 100% sans distraction.
+// Masque le chrome marketing (menu, footer, pop-ups) sur les landing pages /lp/*
+// pour une page de conversion sans distraction. La bannière cookies et le
+// tracking restent globaux (rendus dans le layout racine) car nécessaires
+// au consentement et à la mesure des campagnes, y compris sur les LP.
 export default function SiteFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const bare = pathname?.startsWith('/lp')
@@ -20,7 +21,6 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
       <Navbar />
       <main>{children}</main>
       <Footer />
-      <CookieBanner />
       <ExitIntentModal />
       <StickyLeadBar />
     </>

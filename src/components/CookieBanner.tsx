@@ -63,9 +63,9 @@ const categories = [
   },
   {
     id: 'marketing' as const,
-    label: 'Cookies de mesure d\'affiliation',
+    label: 'Cookies marketing & publicité',
     description:
-      'Permettent de mesurer les performances des liens partenaires (Wise, Revolut, ACS, etc.) via des traceurs anonymisés. Aucune publicité ciblée.',
+      'Permettent de mesurer les performances de nos campagnes publicitaires (Meta Pixel, Google Ads) et de nos liens partenaires (Wise, Revolut, ACS…), et d\'améliorer la pertinence de nos contenus.',
     always: false,
   },
 ]

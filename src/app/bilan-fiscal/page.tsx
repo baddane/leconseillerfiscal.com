@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Send, CheckCircle, ShieldCheck, Clock, Star, ArrowRight } from 'lucide-react'
+import { trackLead } from '@/lib/track'
 
 const pays_options = [
   'Portugal', 'Émirats Arabes Unis (Dubaï)', 'Suisse', 'Espagne', 'Canada',
@@ -63,7 +64,12 @@ export default function BilanFiscalPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, source: 'bilan-fiscal' }),
       })
-      setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) {
+        setStatus('success')
+        trackLead('bilan-fiscal')
+      } else {
+        setStatus('error')
+      }
     } catch {
       setStatus('error')
     }

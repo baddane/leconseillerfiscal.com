@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import SiteFrame from '@/components/SiteFrame'
+import Analytics from '@/components/Analytics'
+import CookieBanner from '@/components/CookieBanner'
 import { OrganizationJsonLd } from '@/components/JsonLd'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://leconseillerfiscal.com'
@@ -49,7 +51,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">
         <OrganizationJsonLd />
+        <Analytics />
         <SiteFrame>{children}</SiteFrame>
+        <CookieBanner />
       </body>
     </html>
   )

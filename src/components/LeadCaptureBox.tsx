@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Download, ArrowRight } from 'lucide-react'
+import { trackLead } from '@/lib/track'
 
 interface Props {
   pays?: string
@@ -23,7 +24,12 @@ export default function LeadCaptureBox({ pays, variant = 'email' }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-      setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) {
+        setStatus('success')
+        trackLead('newsletter-article')
+      } else {
+        setStatus('error')
+      }
     } catch {
       setStatus('error')
     }

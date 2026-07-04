@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { X, FileText, Mail } from 'lucide-react'
+import { trackLead } from '@/lib/track'
 
 export default function ExitIntentModal() {
   const [visible, setVisible] = useState(false)
@@ -55,6 +56,7 @@ export default function ExitIntentModal() {
       })
       if (res.ok) {
         setStatus('success')
+        trackLead('exit-intent')
         try { localStorage.setItem('lcf_exit_dismissed', '1') } catch {}
       } else {
         setStatus('error')

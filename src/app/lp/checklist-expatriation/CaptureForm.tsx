@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Download, Check } from 'lucide-react'
+import { trackLead } from '@/lib/track'
 
 export default function CaptureForm({ id, cta = 'Recevoir le PDF gratuit' }: { id?: string; cta?: string }) {
   const [email, setEmail] = useState('')
@@ -17,7 +18,12 @@ export default function CaptureForm({ id, cta = 'Recevoir le PDF gratuit' }: { i
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-      setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) {
+        setStatus('success')
+        trackLead('checklist-pdf-lp')
+      } else {
+        setStatus('error')
+      }
     } catch {
       setStatus('error')
     }
