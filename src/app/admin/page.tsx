@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Lock, LogOut, RefreshCw, Trash2, Mail, MailOpen, Inbox, Users,
-  KeyRound, AlertCircle, Phone, MapPin, Send, Check, ClipboardList,
+  KeyRound, AlertCircle, Phone, MapPin, Send, Check, ClipboardList, Reply,
 } from 'lucide-react'
 import { supabase, type LcfContactMessage, type LcfLead } from '@/lib/supabase'
 
@@ -222,7 +222,7 @@ export default function AdminPage() {
             {tab === 'contacts'
               ? (rows as LcfContactMessage[]).map((c) => (
                   <ContactCard
-                    key={c.id} item={c} busy={busyId === c.id}
+                    key={c.id} item={c} busy={busyId === c.id} getPw={currentPw}
                     onToggleRead={() => toggleRead('contact', c.id, c.is_read)}
                     onDelete={() => remove('contact', c.id)}
                   />
@@ -305,9 +305,9 @@ function CardShell({
 }
 
 function ContactCard({
-  item, busy, onToggleRead, onDelete,
+  item, busy, onToggleRead, onDelete, getPw,
 }: {
-  item: LcfContactMessage; busy: boolean; onToggleRead: () => void; onDelete: () => void
+  item: LcfContactMessage; busy: boolean; onToggleRead: () => void; onDelete: () => void; getPw: () => string
 }) {
   return (
     <CardShell isRead={item.is_read} busy={busy} createdAt={item.created_at} onToggleRead={onToggleRead} onDelete={onDelete}>
@@ -320,7 +320,83 @@ function ContactCard({
         <p className="font-mono text-[11px] uppercase tracking-wider text-grey mt-2">Sujet : {item.subject}</p>
       )}
       {item.message && <p className="font-sans text-sm mt-3 whitespace-pre-wrap leading-relaxed">{item.message}</p>}
+      <ReplyComposer
+        to={item.email}
+        defaultSubject={item.subject ? `Re: ${item.subject}` : 'Réponse — Le Conseiller Fiscal'}
+        getPw={getPw}
+      />
     </CardShell>
+  )
+}
+
+function ReplyComposer({ to, defaultSubject, getPw }: { to: string; defaultSubject: string; getPw: () => string }) {
+  const [open, setOpen] = useState(false)
+  const [subject, setSubject] = useState(defaultSubject)
+  const [body, setBody] = useState('')
+  const [sending, setSending] = useState(false)
+  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+
+  async function send() {
+    if (!body.trim()) { setMsg({ type: 'err', text: 'Le message est vide.' }); return }
+    setSending(true); setMsg(null)
+    try {
+      const res = await fetch('/api/admin/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: getPw(), to, subject, body }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setMsg({ type: 'ok', text: `Réponse envoyée à ${to} ✓` })
+        setBody(''); setOpen(false)
+      } else {
+        setMsg({ type: 'err', text: data.error || 'Échec de l’envoi' })
+      }
+    } catch {
+      setMsg({ type: 'err', text: 'Erreur réseau' })
+    }
+    setSending(false)
+  }
+
+  return (
+    <div className="mt-4">
+      {!open ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-2 border border-ink px-4 py-2 font-mono text-[11px] uppercase tracking-wider hover:bg-ink hover:text-paper transition-colors"
+        >
+          <Reply className="w-3.5 h-3.5" /> Répondre
+        </button>
+      ) : (
+        <div className="border border-border bg-paper p-3 flex flex-col gap-2">
+          <input
+            value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Objet"
+            className="border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-gold bg-white"
+          />
+          <textarea
+            value={body} onChange={(e) => setBody(e.target.value)} rows={6} placeholder="Votre réponse…"
+            className="border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-gold bg-white resize-y"
+          />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={send} disabled={sending}
+              className="inline-flex items-center gap-2 bg-gold text-ink px-5 py-2 font-mono text-[11px] font-bold uppercase tracking-wider hover:bg-gold-light transition-colors disabled:opacity-50"
+            >
+              <Send className="w-3.5 h-3.5" /> {sending ? 'Envoi…' : 'Envoyer'}
+            </button>
+            <button
+              onClick={() => setOpen(false)}
+              className="border border-border px-4 py-2 font-mono text-[11px] uppercase tracking-wider text-grey hover:text-ink transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
+      {msg && (
+        <p className={`mt-2 font-sans text-xs ${msg.type === 'ok' ? 'text-gold' : 'text-red'}`}>{msg.text}</p>
+      )}
+    </div>
   )
 }
 

@@ -1,23 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
 import { getAllArticleMetaSynced, type ArticleMeta } from '@/lib/articles'
 import { buildNewsletterEmail, dateVerifSortKey } from '@/lib/newsletter-email'
 import { getEnvInt } from '@/lib/env'
 import { isValidEmail } from '@/lib/validation'
-
-const ZERO_UUID = '00000000-0000-0000-0000-000000000000'
-
-// Vérifie le mot de passe admin via une RPC protégée (ne renvoie aucune donnée).
-async function verifyAdmin(password: unknown): Promise<boolean> {
-  if (typeof password !== 'string' || !password) return false
-  const { error } = await supabase.rpc('lcf_admin_set_read', {
-    p_password: password,
-    p_kind: 'contact',
-    p_id: ZERO_UUID,
-    p_read: false,
-  })
-  return !error
-}
+import { verifyAdminPassword } from '@/lib/adminAuth'
 
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>
@@ -34,7 +20,7 @@ export async function POST(request: NextRequest) {
     testEmail?: string
   }
 
-  if (!(await verifyAdmin(password))) {
+  if (!(await verifyAdminPassword(password))) {
     return NextResponse.json({ error: 'Mot de passe incorrect' }, { status: 401 })
   }
 
