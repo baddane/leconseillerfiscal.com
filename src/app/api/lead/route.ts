@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isValidEmail, isValidPhone, sanitizeText, isNonEmpty, isBodyTooLarge } from '@/lib/validation'
 import { getEnvInt } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
+import { RESEND_FROM } from '@/lib/mail'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Le Conseiller Fiscal <noreply@leconseillerfiscal.com>',
+          from: RESEND_FROM,
           to: contactEmail,
           reply_to: email,
           subject: `[Lead] Bilan Fiscal — ${nom} · ${pays || 'pays NC'}`,

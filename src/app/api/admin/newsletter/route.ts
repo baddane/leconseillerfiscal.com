@@ -4,6 +4,7 @@ import { buildNewsletterEmail, dateVerifSortKey } from '@/lib/newsletter-email'
 import { getEnvInt } from '@/lib/env'
 import { isValidEmail } from '@/lib/validation'
 import { verifyAdminPassword } from '@/lib/adminAuth'
+import { BREVO_SENDER } from '@/lib/mail'
 
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: HEADERS,
       body: JSON.stringify({
-        sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+        sender: BREVO_SENDER,
         to: [{ email: testEmail }],
         subject: `[TEST] ${subject}`,
         htmlContent: html,
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         name: `Newsletter ${new Date().toISOString().slice(0, 16)} — ${subject}`.slice(0, 120),
         subject,
-        sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+        sender: BREVO_SENDER,
         type: 'classic',
         htmlContent: html,
         recipients: { listIds: [listId] },

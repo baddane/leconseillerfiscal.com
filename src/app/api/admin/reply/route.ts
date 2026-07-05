@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminPassword } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
 import { isValidEmail, sanitizeText, isNonEmpty } from '@/lib/validation'
+import { BREVO_SENDER } from '@/lib/mail'
 
 const esc = (s: string) =>
   String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
     method: 'POST',
     headers: { 'api-key': brevoKey, 'Content-Type': 'application/json', accept: 'application/json' },
     body: JSON.stringify({
-      sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+      sender: BREVO_SENDER,
       replyTo: { email: contactEmail, name: 'Le Conseiller Fiscal' },
       to: [{ email: to }],
       subject: sanitizeText(subject, 200) || 'Réponse — Le Conseiller Fiscal',

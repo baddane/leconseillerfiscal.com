@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isValidEmail, isBodyTooLarge } from '@/lib/validation'
 import { getEnvInt } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
+import { BREVO_SENDER } from '@/lib/mail'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -249,7 +250,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: HEADERS,
         body: JSON.stringify({
-          sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+          sender: BREVO_SENDER,
           to: [{ email }],
           subject: 'Votre checklist fiscale — 10 étapes avant de quitter la France',
           htmlContent: buildWelcomeEmail(email, siteUrl),

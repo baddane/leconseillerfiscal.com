@@ -120,7 +120,7 @@ async function step4_checkSender() {
   if (senders.length === 0) {
     logErr('Aucun expéditeur configuré dans Brevo.')
     logInfo('Ajoutez un expéditeur : Brevo → Paramètres → Expéditeurs & IP')
-    logInfo('Adresse recommandée : noreply@leconseillerfiscal.com')
+    logInfo('Adresse recommandée : contact@leconseillerfiscal.com')
   } else {
     senders.forEach(s => logOk(`Expéditeur : ${s.name} <${s.email}>`))
   }

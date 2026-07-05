@@ -169,7 +169,7 @@ async function main() {
     body: JSON.stringify({
       name: `Newsletter ${new Date().toISOString().slice(0, 16)} — ${subject}`.slice(0, 120),
       subject,
-      sender: { name: 'Le Conseiller Fiscal', email: 'noreply@leconseillerfiscal.com' },
+      sender: { name: 'Le Conseiller Fiscal', email: process.env.MAIL_FROM_EMAIL || 'contact@leconseillerfiscal.com' },
       type: 'classic',
       htmlContent: html,
       recipients: { listIds: [LIST_ID] },
