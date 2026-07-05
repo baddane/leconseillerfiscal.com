@@ -64,6 +64,17 @@ export async function POST(request: NextRequest) {
       supabaseOk = true
     }
 
+    // ── 1bis. L'auteur du message est aussi un lead (visible dans /admin) ──
+    const { error: leadError } = await supabase.from('lcf_leads').insert({
+      name: nom,
+      email,
+      source: 'contact',
+      message: sujet ? `Sujet : ${sujet}` : null,
+    })
+    if (leadError) {
+      console.error('[contact] Supabase lead insert error:', leadError.message)
+    }
+
     // ── 2. Notification interne (Resend) ───────────────────────────────────
     if (!apiKey) {
       // Pas de clé email : on s'appuie sur Supabase (et on logue en dev)
