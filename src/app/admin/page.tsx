@@ -9,9 +9,18 @@ import { supabase, type LcfContactMessage, type LcfLead } from '@/lib/supabase'
 
 const PW_KEY = 'lcf_admin_pw'
 type Tab = 'contacts' | 'leads' | 'bilan' | 'newsletter'
+interface LcfReply {
+  id: string
+  message_id: string | null
+  to_email: string
+  subject: string | null
+  body: string
+  created_at: string
+}
 interface AdminData {
   contacts: LcfContactMessage[]
   leads: LcfLead[]
+  replies: LcfReply[]
 }
 
 function formatDate(iso: string): string {
@@ -23,7 +32,7 @@ function formatDate(iso: string): string {
 export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
-  const [data, setData] = useState<AdminData>({ contacts: [], leads: [] })
+  const [data, setData] = useState<AdminData>({ contacts: [], leads: [], replies: [] })
   const [tab, setTab] = useState<Tab>('contacts')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -47,6 +56,7 @@ export default function AdminPage() {
     setData({
       contacts: (rpcData?.contacts ?? []) as LcfContactMessage[],
       leads: (rpcData?.leads ?? []) as LcfLead[],
+      replies: (rpcData?.replies ?? []) as LcfReply[],
     })
     return true
   }, [])
@@ -76,7 +86,7 @@ export default function AdminPage() {
     sessionStorage.removeItem(PW_KEY)
     setAuthed(false)
     setPassword('')
-    setData({ contacts: [], leads: [] })
+    setData({ contacts: [], leads: [], replies: [] })
   }
 
   async function toggleRead(kind: 'contact' | 'lead', id: string, isRead: boolean) {
@@ -223,6 +233,8 @@ export default function AdminPage() {
               ? (rows as LcfContactMessage[]).map((c) => (
                   <ContactCard
                     key={c.id} item={c} busy={busyId === c.id} getPw={currentPw}
+                    replies={data.replies.filter((r) => r.message_id === c.id)}
+                    onSent={() => loadData(currentPw())}
                     onToggleRead={() => toggleRead('contact', c.id, c.is_read)}
                     onDelete={() => remove('contact', c.id)}
                   />
@@ -305,9 +317,10 @@ function CardShell({
 }
 
 function ContactCard({
-  item, busy, onToggleRead, onDelete, getPw,
+  item, busy, onToggleRead, onDelete, getPw, replies, onSent,
 }: {
-  item: LcfContactMessage; busy: boolean; onToggleRead: () => void; onDelete: () => void; getPw: () => string
+  item: LcfContactMessage; busy: boolean; onToggleRead: () => void; onDelete: () => void
+  getPw: () => string; replies: LcfReply[]; onSent: () => void
 }) {
   return (
     <CardShell isRead={item.is_read} busy={busy} createdAt={item.created_at} onToggleRead={onToggleRead} onDelete={onDelete}>
@@ -320,16 +333,37 @@ function ContactCard({
         <p className="font-mono text-[11px] uppercase tracking-wider text-grey mt-2">Sujet : {item.subject}</p>
       )}
       {item.message && <p className="font-sans text-sm mt-3 whitespace-pre-wrap leading-relaxed">{item.message}</p>}
+
+      {/* Fil des réponses envoyées */}
+      {replies.length > 0 && (
+        <div className="mt-4 flex flex-col gap-2">
+          {replies.map((r) => (
+            <div key={r.id} className="border-l-2 border-gold bg-gold/5 pl-3 py-2">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-grey mb-1">
+                Vous · {formatDate(r.created_at)}
+              </p>
+              <p className="font-sans text-sm whitespace-pre-wrap leading-relaxed">{r.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       <ReplyComposer
         to={item.email}
+        messageId={item.id}
         defaultSubject={item.subject ? `Re: ${item.subject}` : 'Réponse — Le Conseiller Fiscal'}
         getPw={getPw}
+        onSent={onSent}
       />
     </CardShell>
   )
 }
 
-function ReplyComposer({ to, defaultSubject, getPw }: { to: string; defaultSubject: string; getPw: () => string }) {
+function ReplyComposer({
+  to, messageId, defaultSubject, getPw, onSent,
+}: {
+  to: string; messageId: string; defaultSubject: string; getPw: () => string; onSent: () => void
+}) {
   const [open, setOpen] = useState(false)
   const [subject, setSubject] = useState(defaultSubject)
   const [body, setBody] = useState('')
@@ -343,12 +377,13 @@ function ReplyComposer({ to, defaultSubject, getPw }: { to: string; defaultSubje
       const res = await fetch('/api/admin/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: getPw(), to, subject, body }),
+        body: JSON.stringify({ password: getPw(), to, subject, body, messageId }),
       })
       const data = await res.json()
       if (res.ok) {
         setMsg({ type: 'ok', text: `Réponse envoyée à ${to} ✓` })
         setBody(''); setOpen(false)
+        onSent()
       } else {
         setMsg({ type: 'err', text: data.error || 'Échec de l’envoi' })
       }

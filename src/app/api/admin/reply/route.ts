@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminPassword } from '@/lib/adminAuth'
+import { supabase } from '@/lib/supabase'
 import { isValidEmail, sanitizeText, isNonEmpty } from '@/lib/validation'
 
 const esc = (s: string) =>
@@ -32,8 +33,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Requête invalide' }, { status: 400 })
   }
 
-  const { password, to, subject, body: message } = body as {
-    password?: string; to?: string; subject?: string; body?: string
+  const { password, to, subject, body: message, messageId } = body as {
+    password?: string; to?: string; subject?: string; body?: string; messageId?: string
   }
 
   if (!(await verifyAdminPassword(password))) {
@@ -70,5 +71,18 @@ export async function POST(request: NextRequest) {
   if (!res.ok) {
     return NextResponse.json({ error: 'Échec de l’envoi : ' + (await res.text()) }, { status: 502 })
   }
+
+  // Enregistrer la réponse dans le fil de la conversation (best-effort)
+  const { error: dbError } = await supabase.rpc('lcf_admin_add_reply', {
+    p_password: password,
+    p_message_id: messageId ?? null,
+    p_to: to,
+    p_subject: sanitizeText(subject, 200) || null,
+    p_body: text,
+  })
+  if (dbError) {
+    console.error('[admin/reply] Persist error:', dbError.message)
+  }
+
   return NextResponse.json({ ok: true, to })
 }
