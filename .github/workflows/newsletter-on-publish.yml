@@ -1,12 +1,13 @@
 name: Newsletter à la publication
 
-# Se déclenche à chaque push sur main qui AJOUTE un article,
-# et peut aussi être lancé manuellement (mode test par défaut).
+# Envoi MANUEL uniquement (le déclenchement automatique à chaque publication
+# est désactivé — rythme de publication soutenu + contrôle éditorial).
+# Pour réactiver l'auto, décommenter le bloc "push" ci-dessous.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'content/articles/**'
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'content/articles/**'
   workflow_dispatch:
     inputs:
       slugs:
