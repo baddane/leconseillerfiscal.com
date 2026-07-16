@@ -12,6 +12,7 @@ type Tab = 'contacts' | 'leads' | 'bilan' | 'newsletter'
 interface LcfReply {
   id: string
   message_id: string | null
+  lead_id: string | null
   to_email: string
   subject: string | null
   body: string
@@ -241,7 +242,9 @@ export default function AdminPage() {
                 ))
               : (rows as LcfLead[]).map((l) => (
                   <LeadCard
-                    key={l.id} item={l} busy={busyId === l.id}
+                    key={l.id} item={l} busy={busyId === l.id} getPw={currentPw}
+                    replies={data.replies.filter((r) => r.lead_id === l.id)}
+                    onSent={() => loadData(currentPw())}
                     onToggleRead={() => toggleRead('lead', l.id, l.is_read)}
                     onDelete={() => remove('lead', l.id)}
                   />
@@ -334,19 +337,7 @@ function ContactCard({
       )}
       {item.message && <p className="font-sans text-sm mt-3 whitespace-pre-wrap leading-relaxed">{item.message}</p>}
 
-      {/* Fil des réponses envoyées */}
-      {replies.length > 0 && (
-        <div className="mt-4 flex flex-col gap-2">
-          {replies.map((r) => (
-            <div key={r.id} className="border-l-2 border-gold bg-gold/5 pl-3 py-2">
-              <p className="font-mono text-[10px] uppercase tracking-wider text-grey mb-1">
-                Vous · {formatDate(r.created_at)}
-              </p>
-              <p className="font-sans text-sm whitespace-pre-wrap leading-relaxed">{r.body}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      <ReplyThread replies={replies} />
 
       <ReplyComposer
         to={item.email}
@@ -359,10 +350,27 @@ function ContactCard({
   )
 }
 
+function ReplyThread({ replies }: { replies: LcfReply[] }) {
+  if (replies.length === 0) return null
+  return (
+    <div className="mt-4 flex flex-col gap-2">
+      {replies.map((r) => (
+        <div key={r.id} className="border-l-2 border-gold bg-gold/5 pl-3 py-2">
+          <p className="font-mono text-[10px] uppercase tracking-wider text-grey mb-1">
+            Vous · {formatDate(r.created_at)}
+          </p>
+          <p className="font-sans text-sm whitespace-pre-wrap leading-relaxed">{r.body}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ReplyComposer({
-  to, messageId, defaultSubject, getPw, onSent,
+  to, messageId, leadId, defaultSubject, getPw, onSent,
 }: {
-  to: string; messageId: string; defaultSubject: string; getPw: () => string; onSent: () => void
+  to: string; messageId?: string; leadId?: string; defaultSubject: string
+  getPw: () => string; onSent: () => void
 }) {
   const [open, setOpen] = useState(false)
   const [subject, setSubject] = useState(defaultSubject)
@@ -377,7 +385,7 @@ function ReplyComposer({
       const res = await fetch('/api/admin/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: getPw(), to, subject, body, messageId }),
+        body: JSON.stringify({ password: getPw(), to, subject, body, messageId, leadId }),
       })
       const data = await res.json()
       if (res.ok) {
@@ -436,9 +444,10 @@ function ReplyComposer({
 }
 
 function LeadCard({
-  item, busy, onToggleRead, onDelete,
+  item, busy, onToggleRead, onDelete, getPw, replies, onSent,
 }: {
   item: LcfLead; busy: boolean; onToggleRead: () => void; onDelete: () => void
+  getPw: () => string; replies: LcfReply[]; onSent: () => void
 }) {
   return (
     <CardShell isRead={item.is_read} busy={busy} createdAt={item.created_at} onToggleRead={onToggleRead} onDelete={onDelete}>
@@ -461,6 +470,20 @@ function LeadCard({
         )}
       </div>
       {item.message && <p className="font-sans text-sm mt-3 whitespace-pre-wrap leading-relaxed">{item.message}</p>}
+
+      <ReplyThread replies={replies} />
+
+      <ReplyComposer
+        to={item.email}
+        leadId={item.id}
+        defaultSubject={
+          item.source === 'bilan-fiscal'
+            ? 'Votre bilan fiscal — Le Conseiller Fiscal'
+            : 'Réponse — Le Conseiller Fiscal'
+        }
+        getPw={getPw}
+        onSent={onSent}
+      />
     </CardShell>
   )
 }

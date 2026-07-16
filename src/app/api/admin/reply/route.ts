@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Requête invalide' }, { status: 400 })
   }
 
-  const { password, to, subject, body: message, messageId } = body as {
-    password?: string; to?: string; subject?: string; body?: string; messageId?: string
+  const { password, to, subject, body: message, messageId, leadId } = body as {
+    password?: string; to?: string; subject?: string; body?: string; messageId?: string; leadId?: string
   }
 
   if (!(await verifyAdminPassword(password))) {
@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
   const { error: dbError } = await supabase.rpc('lcf_admin_add_reply', {
     p_password: password,
     p_message_id: messageId ?? null,
+    p_lead_id: leadId ?? null,
     p_to: to,
     p_subject: sanitizeText(subject, 200) || null,
     p_body: text,
