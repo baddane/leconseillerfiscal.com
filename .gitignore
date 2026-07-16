@@ -8,3 +8,6 @@ coverage/
 .env*
 !.env.example
 newsletter-preview.html
+
+# TypeScript incremental build info
+*.tsbuildinfo
