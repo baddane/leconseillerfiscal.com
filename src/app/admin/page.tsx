@@ -111,15 +111,12 @@ export default function AdminPage() {
     setBusyId(null)
   }
 
-  // « Leads » = captures d'email uniquement (newsletter, checklist…) ;
-  // les demandes de bilan vivent dans « Bilan fiscal », les messages dans « Messages »
+  // « Leads » = annuaire de TOUTES les adresses captées (newsletter, messages,
+  // bilan…) en vue compacte ; le contenu des demandes reste dans « Messages »
+  // et « Bilan fiscal »
   const bilanLeads = useMemo(() => data.leads.filter((l) => l.source === 'bilan-fiscal'), [data.leads])
-  const emailLeads = useMemo(
-    () => data.leads.filter((l) => l.source !== 'bilan-fiscal' && l.source !== 'contact'),
-    [data.leads],
-  )
   const unreadContacts = useMemo(() => data.contacts.filter((c) => !c.is_read).length, [data.contacts])
-  const unreadLeads = useMemo(() => emailLeads.filter((l) => !l.is_read).length, [emailLeads])
+  const unreadLeads = useMemo(() => data.leads.filter((l) => !l.is_read).length, [data.leads])
   const unreadBilan = useMemo(() => bilanLeads.filter((l) => !l.is_read).length, [bilanLeads])
 
   // ── Écran de connexion ────────────────────────────────────────────────────
@@ -166,7 +163,7 @@ export default function AdminPage() {
   }
 
   // ── Tableau de bord ───────────────────────────────────────────────────────
-  const leadRows = tab === 'bilan' ? bilanLeads : emailLeads
+  const leadRows = tab === 'bilan' ? bilanLeads : data.leads
   const rows = tab === 'contacts' ? data.contacts : leadRows
 
   return (
@@ -248,6 +245,7 @@ export default function AdminPage() {
               : (rows as LcfLead[]).map((l) => (
                   <LeadCard
                     key={l.id} item={l} busy={busyId === l.id} getPw={currentPw}
+                    compact={tab === 'leads'}
                     replies={data.replies.filter((r) => r.lead_id === l.id)}
                     onSent={() => loadData(currentPw())}
                     onToggleRead={() => toggleRead('lead', l.id, l.is_read)}
@@ -450,10 +448,10 @@ function ReplyComposer({
 }
 
 function LeadCard({
-  item, busy, onToggleRead, onDelete, getPw, replies, onSent,
+  item, busy, onToggleRead, onDelete, getPw, replies, onSent, compact = false,
 }: {
   item: LcfLead; busy: boolean; onToggleRead: () => void; onDelete: () => void
-  getPw: () => string; replies: LcfReply[]; onSent: () => void
+  getPw: () => string; replies: LcfReply[]; onSent: () => void; compact?: boolean
 }) {
   return (
     <CardShell isRead={item.is_read} busy={busy} createdAt={item.created_at} onToggleRead={onToggleRead} onDelete={onDelete}>
@@ -475,21 +473,27 @@ function LeadCard({
           </span>
         )}
       </div>
-      {item.message && <p className="font-sans text-sm mt-3 whitespace-pre-wrap leading-relaxed">{item.message}</p>}
+      {!compact && (
+        <>
+          {item.message && (
+            <p className="font-sans text-sm mt-3 whitespace-pre-wrap leading-relaxed">{item.message}</p>
+          )}
 
-      <ReplyThread replies={replies} />
+          <ReplyThread replies={replies} />
 
-      <ReplyComposer
-        to={item.email}
-        leadId={item.id}
-        defaultSubject={
-          item.source === 'bilan-fiscal'
-            ? 'Votre bilan fiscal — Le Conseiller Fiscal'
-            : 'Réponse — Le Conseiller Fiscal'
-        }
-        getPw={getPw}
-        onSent={onSent}
-      />
+          <ReplyComposer
+            to={item.email}
+            leadId={item.id}
+            defaultSubject={
+              item.source === 'bilan-fiscal'
+                ? 'Votre bilan fiscal — Le Conseiller Fiscal'
+                : 'Réponse — Le Conseiller Fiscal'
+            }
+            getPw={getPw}
+            onSent={onSent}
+          />
+        </>
+      )}
     </CardShell>
   )
 }
