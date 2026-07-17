@@ -417,7 +417,8 @@ function ReplyComposer({
             className="border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-gold bg-white"
           />
           <textarea
-            value={body} onChange={(e) => setBody(e.target.value)} rows={6} placeholder="Votre réponse…"
+            value={body} onChange={(e) => setBody(e.target.value)} rows={6}
+            placeholder="Votre réponse… (Markdown accepté : ## titre, **gras**, - liste, tableaux)"
             className="border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-gold bg-white resize-y"
           />
           <div className="flex items-center gap-2">
