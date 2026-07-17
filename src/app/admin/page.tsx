@@ -111,10 +111,15 @@ export default function AdminPage() {
     setBusyId(null)
   }
 
-  // « Leads » = TOUS les leads (newsletter + bilan) ; « Bilan fiscal » = sous-ensemble
+  // « Leads » = captures d'email uniquement (newsletter, checklist…) ;
+  // les demandes de bilan vivent dans « Bilan fiscal », les messages dans « Messages »
   const bilanLeads = useMemo(() => data.leads.filter((l) => l.source === 'bilan-fiscal'), [data.leads])
+  const emailLeads = useMemo(
+    () => data.leads.filter((l) => l.source !== 'bilan-fiscal' && l.source !== 'contact'),
+    [data.leads],
+  )
   const unreadContacts = useMemo(() => data.contacts.filter((c) => !c.is_read).length, [data.contacts])
-  const unreadLeads = useMemo(() => data.leads.filter((l) => !l.is_read).length, [data.leads])
+  const unreadLeads = useMemo(() => emailLeads.filter((l) => !l.is_read).length, [emailLeads])
   const unreadBilan = useMemo(() => bilanLeads.filter((l) => !l.is_read).length, [bilanLeads])
 
   // ── Écran de connexion ────────────────────────────────────────────────────
@@ -161,7 +166,7 @@ export default function AdminPage() {
   }
 
   // ── Tableau de bord ───────────────────────────────────────────────────────
-  const leadRows = tab === 'bilan' ? bilanLeads : data.leads
+  const leadRows = tab === 'bilan' ? bilanLeads : emailLeads
   const rows = tab === 'contacts' ? data.contacts : leadRows
 
   return (
