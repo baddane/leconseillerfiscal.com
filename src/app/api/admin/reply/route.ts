@@ -1,14 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { remark } from 'remark'
+import remarkGfm from 'remark-gfm'
+import remarkHtml from 'remark-html'
+import sanitizeHtml from 'sanitize-html'
 import { verifyAdminPassword } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
 import { isValidEmail, sanitizeText, isNonEmpty } from '@/lib/validation'
 import { BREVO_SENDER } from '@/lib/mail'
 
-const esc = (s: string) =>
-  String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+// Styles inline par balise : les clients email (Gmail, Outlook…) ignorent
+// les feuilles de style, tout doit être porté par les attributs style.
+const TAG_STYLES: Record<string, string> = {
+  h2: 'font-family:Georgia,serif;font-size:20px;font-weight:700;color:#0f0e0b;margin:28px 0 12px;',
+  h3: 'font-family:Georgia,serif;font-size:17px;font-weight:700;color:#0f0e0b;margin:22px 0 10px;',
+  p: 'margin:0 0 16px;line-height:1.7;',
+  ul: 'margin:0 0 16px;padding-left:22px;line-height:1.7;',
+  ol: 'margin:0 0 16px;padding-left:22px;line-height:1.7;',
+  li: 'margin:4px 0;',
+  blockquote: 'margin:0 0 16px;padding:2px 0 2px 14px;border-left:3px solid #c9a84c;color:#555555;',
+  table: 'border-collapse:collapse;margin:0 0 16px;font-size:14px;',
+  th: 'border:1px solid #e5e0d8;background:#f5f0e8;padding:8px;text-align:left;',
+  td: 'border:1px solid #e5e0d8;padding:8px;',
+  hr: 'border:none;border-top:1px solid #e5e0d8;margin:24px 0;',
+  a: 'color:#8a6d2f;',
+}
 
-function wrapHtml(bodyText: string, siteUrl: string): string {
-  const html = esc(bodyText).replace(/\n/g, '<br>')
+// Convertit le markdown du composeur en HTML sûr et stylé inline.
+async function renderEmailBody(text: string): Promise<string> {
+  // Préserve les retours à la ligne simples (comportement historique du composeur)
+  const withBreaks = text.replace(/(?<!\n)\n(?!\n)/g, '  \n')
+  const raw = String(await remark().use(remarkGfm).use(remarkHtml, { sanitize: false }).process(withBreaks))
+
+  const transformTags: sanitizeHtml.IOptions['transformTags'] = {
+    h1: () => ({ tagName: 'h2', attribs: { style: TAG_STYLES.h2 } }),
+    h4: () => ({ tagName: 'h3', attribs: { style: TAG_STYLES.h3 } }),
+  }
+  for (const [tag, style] of Object.entries(TAG_STYLES)) {
+    transformTags[tag] = (tagName, attribs) => ({ tagName, attribs: { ...attribs, style } })
+  }
+
+  return sanitizeHtml(raw, {
+    allowedTags: [
+      'h2', 'h3', 'p', 'br', 'strong', 'em', 'del', 'ul', 'ol', 'li', 'a',
+      'blockquote', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'code', 'pre',
+    ],
+    allowedAttributes: { a: ['href', 'style'], '*': ['style'] },
+    allowedSchemes: ['https', 'http', 'mailto'],
+    transformTags,
+  })
+}
+
+function wrapHtml(bodyHtml: string, siteUrl: string): string {
+  const html = bodyHtml
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f5f0e8;font-family:Georgia,serif;">
   <div style="max-width:600px;margin:0 auto;background:#f5f0e8;">
@@ -64,7 +107,7 @@ export async function POST(request: NextRequest) {
       replyTo: { email: contactEmail, name: 'Le Conseiller Fiscal' },
       to: [{ email: to }],
       subject: sanitizeText(subject, 200) || 'Réponse — Le Conseiller Fiscal',
-      htmlContent: wrapHtml(text, siteUrl),
+      htmlContent: wrapHtml(await renderEmailBody(text), siteUrl),
       textContent: text,
       tags: ['admin-reply'],
     }),
