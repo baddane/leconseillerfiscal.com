@@ -3,6 +3,7 @@
 import type { Metadata } from 'next'
 import { useState } from 'react'
 import { Send, Mail, MessageSquare } from 'lucide-react'
+import { getAttribution } from '@/lib/attribution'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ nom: '', email: '', sujet: 'expatriation', message: '' })
@@ -19,7 +20,7 @@ export default function ContactPage() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...getAttribution() }),
       })
       setStatus(res.ok ? 'success' : 'error')
     } catch {

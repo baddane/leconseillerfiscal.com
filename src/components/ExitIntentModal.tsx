@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, FileText, Mail } from 'lucide-react'
 import { trackLead } from '@/lib/track'
+import { getAttribution } from '@/lib/attribution'
 
 export default function ExitIntentModal() {
   const [visible, setVisible] = useState(false)
@@ -52,7 +53,7 @@ export default function ExitIntentModal() {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...getAttribution() }),
       })
       if (res.ok) {
         setStatus('success')

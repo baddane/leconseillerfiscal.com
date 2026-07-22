@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isValidEmail, isBodyTooLarge } from '@/lib/validation'
+import { isValidEmail, isBodyTooLarge, sanitizeText } from '@/lib/validation'
 import { getEnvInt } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
 import { BREVO_SENDER } from '@/lib/mail'
+import { pickAttribution } from '@/lib/attribution'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -191,7 +192,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 })
     }
 
-    const { email } = await request.json()
+    const body = await request.json()
+    const { email } = body
 
     if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
@@ -204,6 +206,7 @@ export async function POST(request: NextRequest) {
     const { error: dbError } = await supabase.from('lcf_leads').insert({
       email,
       source: 'newsletter',
+      ...pickAttribution(body, sanitizeText),
     })
     if (dbError) {
       console.error('[newsletter] Supabase insert error:', dbError.message)

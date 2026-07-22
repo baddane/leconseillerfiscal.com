@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import SiteFrame from '@/components/SiteFrame'
 import Analytics from '@/components/Analytics'
+import AttributionTracker from '@/components/AttributionTracker'
 import CookieBanner from '@/components/CookieBanner'
 import { OrganizationJsonLd } from '@/components/JsonLd'
 
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">
         <OrganizationJsonLd />
         <Analytics />
+        <AttributionTracker />
         <SiteFrame>{children}</SiteFrame>
         <CookieBanner />
       </body>

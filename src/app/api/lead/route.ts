@@ -3,6 +3,7 @@ import { isValidEmail, isValidPhone, sanitizeText, isNonEmpty, isBodyTooLarge } 
 import { getEnvInt } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
 import { RESEND_FROM } from '@/lib/mail'
+import { pickAttribution } from '@/lib/attribution'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -87,6 +88,7 @@ export async function POST(request: NextRequest) {
       country: pays || null,
       source,
       message: leadMessage || null,
+      ...pickAttribution(body, sanitizeText),
     })
     if (dbError) {
       console.error('[lead] Supabase insert error:', dbError.message)

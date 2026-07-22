@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Download, ArrowRight } from 'lucide-react'
 import { trackLead } from '@/lib/track'
+import { getAttribution } from '@/lib/attribution'
 
 interface Props {
   pays?: string
@@ -22,7 +23,7 @@ export default function LeadCaptureBox({ pays, variant = 'email' }: Props) {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...getAttribution() }),
       })
       if (res.ok) {
         setStatus('success')
