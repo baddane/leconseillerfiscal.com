@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Send, CheckCircle, ShieldCheck, Clock, Star, ArrowRight } from 'lucide-react'
 import { trackLead } from '@/lib/track'
+import { getAttribution } from '@/lib/attribution'
 
 const pays_options = [
   'Portugal', 'Émirats Arabes Unis (Dubaï)', 'Suisse', 'Espagne', 'Canada',
@@ -62,7 +63,7 @@ export default function BilanFiscalPage() {
       const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, source: 'bilan-fiscal' }),
+        body: JSON.stringify({ ...form, source: 'bilan-fiscal', ...getAttribution() }),
       })
       if (res.ok) {
         setStatus('success')

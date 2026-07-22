@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Download, Check } from 'lucide-react'
 import { trackLead } from '@/lib/track'
+import { getAttribution } from '@/lib/attribution'
 
 export default function CaptureForm({ id, cta = 'Recevoir le PDF gratuit' }: { id?: string; cta?: string }) {
   const [email, setEmail] = useState('')
@@ -16,7 +17,7 @@ export default function CaptureForm({ id, cta = 'Recevoir le PDF gratuit' }: { i
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...getAttribution() }),
       })
       if (res.ok) {
         setStatus('success')

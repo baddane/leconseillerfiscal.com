@@ -447,6 +447,45 @@ function ReplyComposer({
   )
 }
 
+// Origine du lead (referrer / UTM) : d'où vient réellement ce contact.
+function LeadOrigin({ item }: { item: LcfLead }) {
+  const hasUtm = item.utm_source || item.utm_campaign
+  let host: string | null = null
+  if (item.referrer) {
+    try { host = new URL(item.referrer).hostname.replace(/^www\./, '') } catch { host = item.referrer }
+  }
+  if (!hasUtm && !host && !item.landing_page) {
+    return (
+      <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-grey/60">
+        Origine : accès direct
+      </p>
+    )
+  }
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <span className="font-mono text-[10px] uppercase tracking-wider text-grey/60">Origine :</span>
+      {item.utm_source && (
+        <span className="font-mono text-[10px] uppercase tracking-wider bg-gold/15 text-gold px-2 py-0.5">
+          {item.utm_source}{item.utm_medium ? ` · ${item.utm_medium}` : ''}
+        </span>
+      )}
+      {item.utm_campaign && (
+        <span className="font-mono text-[10px] tracking-wider border border-border text-grey px-2 py-0.5">
+          {item.utm_campaign}
+        </span>
+      )}
+      {!item.utm_source && host && (
+        <span className="font-mono text-[10px] tracking-wider text-grey">{host}</span>
+      )}
+      {item.landing_page && (
+        <span className="font-mono text-[10px] tracking-wider text-grey/50 truncate max-w-[220px]" title={item.landing_page}>
+          → {item.landing_page}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function LeadCard({
   item, busy, onToggleRead, onDelete, getPw, replies, onSent, compact = false,
 }: {
@@ -473,6 +512,7 @@ function LeadCard({
           </span>
         )}
       </div>
+      <LeadOrigin item={item} />
       {!compact && (
         <>
           {item.message && (

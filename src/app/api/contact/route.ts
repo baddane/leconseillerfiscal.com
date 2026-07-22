@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isValidEmail, sanitizeText, isNonEmpty, isBodyTooLarge } from '@/lib/validation'
 import { supabase } from '@/lib/supabase'
 import { RESEND_FROM } from '@/lib/mail'
+import { pickAttribution } from '@/lib/attribution'
 
 // Simple in-memory rate limiter (best-effort on serverless)
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
       email,
       source: 'contact',
       message: sujet ? `Sujet : ${sujet}` : null,
+      ...pickAttribution(body, sanitizeText),
     })
     if (leadError) {
       console.error('[contact] Supabase lead insert error:', leadError.message)
