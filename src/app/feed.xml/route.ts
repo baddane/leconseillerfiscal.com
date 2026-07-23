@@ -13,7 +13,9 @@ function escapeXml(str: string): string {
 }
 
 export async function GET() {
-  const articles = await getAllArticles()
+  const articles = (await getAllArticles())
+    // Du plus récent au plus ancien (convention RSS)
+    .sort((a, b) => new Date(b.datePublished).getTime() - new Date(a.datePublished).getTime())
 
   const items = articles
     .map((article) => {
@@ -25,7 +27,7 @@ export async function GET() {
       <guid isPermaLink="true">${url}</guid>
       <description>${escapeXml(article.metaDescription)}</description>
       <category>${escapeXml(country?.name ?? article.pays)}</category>
-      <pubDate>${new Date().toUTCString()}</pubDate>
+      <pubDate>${new Date(article.datePublished).toUTCString()}</pubDate>
     </item>`
     })
     .join('\n')

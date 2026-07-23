@@ -64,6 +64,7 @@ metaDescription: "<140-160 caractères, inclut le mot-clé principal et un bén�
 pays: "<slug du pays OU 'actualite' OU 'outils'>"
 slug: "<slug kebab-case, 5-8 mots, inclut le mot-clé principal>"
 dateVerification: "<mois année, ex: avril 2026>"
+datePublished: "<date de publication machine, format AAAA-MM-JJ, ex: 2026-07-23>"
 motClePrincipal: "<mot-clé cible exact>"
 affiliations: ["<ids d'affiliés existants>"]
 faq:
