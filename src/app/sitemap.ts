@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const articlePages: MetadataRoute.Sitemap = slugs.map((s) => ({
     url: `${siteUrl}/expatriation/${s.pays}/${s.slug}`,
-    lastModified: new Date(),
+    lastModified: new Date(s.datePublished),
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }))

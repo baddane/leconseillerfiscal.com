@@ -19,10 +19,17 @@ export interface ArticleFrontmatter {
   pays: string
   slug: string
   dateVerification: string
+  // Date de publication machine (YYYY-MM-DD) — alimente le sitemap, le flux RSS
+  // et la détection de nouveaux articles. dateModified est optionnelle.
+  datePublished: string
+  dateModified?: string
   motClePrincipal: string
   affiliations: string[]
   faq: ArticleFaq[]
 }
+
+// Repli si un article n'a pas encore de datePublished dans son frontmatter.
+const FALLBACK_DATE = '2026-01-01'
 
 export interface Article extends ArticleFrontmatter {
   content: string
@@ -79,6 +86,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
     return {
       ...(data as ArticleFrontmatter),
+      datePublished: (data.datePublished as string) ?? FALLBACK_DATE,
       slug,
       content,
       contentHtml,
@@ -95,7 +103,7 @@ export async function getArticlesByPays(pays: string): Promise<Article[]> {
 }
 
 // Sync versions for generateStaticParams (no async allowed there in Next.js build)
-export function getAllSlugsSynced(): { pays: string; slug: string }[] {
+export function getAllSlugsSynced(): { pays: string; slug: string; datePublished: string }[] {
   try {
     const fileNames = fs.readdirSync(articlesDirectory)
     return fileNames
@@ -105,7 +113,11 @@ export function getAllSlugsSynced(): { pays: string; slug: string }[] {
         const fullPath = path.join(articlesDirectory, `${slug}.mdx`)
         const fileContents = fs.readFileSync(fullPath, 'utf8')
         const { data } = matter(fileContents)
-        return { pays: (data as ArticleFrontmatter).pays, slug }
+        return {
+          pays: (data as ArticleFrontmatter).pays,
+          slug,
+          datePublished: (data.datePublished as string) ?? FALLBACK_DATE,
+        }
       })
   } catch {
     return []
